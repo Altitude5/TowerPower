@@ -70,6 +70,21 @@ class User extends Authenticatable
         return $this->isSuperUser() || $this->isStaff();
     }
 
+    public function isSeller(): bool
+    {
+        return $this->hasRole(Role::ROLE_SELLER);
+    }
+
+    public function isCustomer(): bool
+    {
+        return $this->hasRole(Role::ROLE_CUSTOMER);
+    }
+
+    public function isDeliveryPerson(): bool
+    {
+        return $this->hasRole(Role::ROLE_DELIVERY_PERSON);
+    }
+
     public function assignRole(Role|string $role, ?User $assignedBy = null): void
     {
         $roleModel = $role instanceof Role ? $role : Role::where('slug', $role)->firstOrFail();
