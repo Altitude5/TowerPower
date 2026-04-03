@@ -4,7 +4,6 @@ namespace App\Policies;
 
 use App\Models\Role;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class RolePolicy
 {
@@ -13,12 +12,12 @@ class RolePolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->isAdmin();
+        return $user->isSuperUser();
     }
 
     public function view(User $user, Role $role): bool
     {
-        return $user->isAdmin();
+        return $user->isSuperUser();
     }
 
     public function create(User $user): bool

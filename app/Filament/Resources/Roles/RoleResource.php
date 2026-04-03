@@ -2,15 +2,22 @@
 
 namespace App\Filament\Resources\Roles;
 
-use App\Filament\Resources\Roles\Pages\ManageRoles;
+use App\Filament\Resources\Roles\Pages\CreateRole;
+use App\Filament\Resources\Roles\Pages\EditRole;
+use App\Filament\Resources\Roles\Pages\ListRoles;
+use App\Filament\Resources\Roles\Pages\ViewRole;
 use App\Models\Role;
 use BackedEnum;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Forms\Components\TextInput;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
@@ -21,6 +28,22 @@ class RoleResource extends Resource
     protected static ?string $model = Role::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+
+    public static function infolist(Schema $schema): Schema
+    {
+        return $schema
+            ->components([
+                TextEntry::make('name'),
+                TextEntry::make('slug')
+                    ->columnSpanFull(),
+                Actions::make([
+                    Action::make('Edit')
+                        ->color('info')
+                        ->icon('heroicon-m-pencil')
+                        ->url(fn (Role $record): string => RoleResource::getUrl('edit', ['record' => $record])),
+                ]),
+            ]);
+    }
 
     public static function form(Schema $schema): Schema
     {
@@ -33,6 +56,8 @@ class RoleResource extends Resource
                 TextInput::make('slug')
                     ->required()
                     ->unique(ignoreRecord: true),
+                // TextEntry::make('name'),
+                // TextEntry::make('slug'),
             ]);
     }
 
@@ -51,8 +76,10 @@ class RoleResource extends Resource
                 //
             ])
             ->recordActions([
+                ViewAction::make(),
                 EditAction::make(),
-                DeleteAction::make(),
+                DeleteAction::make()
+                    ->hidden(fn (Role $record): bool => $record->hasUsers()),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
@@ -64,7 +91,10 @@ class RoleResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => ManageRoles::route('/'),
+            'index' => ListRoles::route('/'),
+            'create' => CreateRole::route('/create'),
+            'view' => ViewRole::route('/{record}/view'),
+            'edit' => EditRole::route('/{record}'),
         ];
     }
 }

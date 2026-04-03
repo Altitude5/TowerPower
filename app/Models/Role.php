@@ -5,11 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Str;
 
 class Role extends Model
 {
     use HasFactory;
-    
+
     /**
      * The "booted" method of the model.
      */
@@ -21,21 +22,30 @@ class Role extends Model
                 throw new \InvalidArgumentException('Role name must be at least 3 characters.');
             }
 
-            if (!preg_match('/^[a-zA-Z0-9\s]+$/', $role->name)) {
-                throw new \InvalidArgumentException('Role name can only contain alpha-numeric characters and spaces.');
+            if (! preg_match('/^[a-zA-Z0-9\s_]+$/', $role->name)) {
+                throw new \InvalidArgumentException('Role name can only contain alpha-numeric characters, spaces, and underscores.');
+            }
+
+            // Auto-generate slug if missing
+            if (empty($role->slug) && ! empty($role->name)) {
+                $role->slug = Str::slug($role->name, '_');
             }
 
             // Validate slug: alpha-numeric with underscores
-            if (!preg_match('/^[a-z0-9_]+$/', $role->slug)) {
+            if (! preg_match('/^[a-z0-9_]+$/', $role->slug)) {
                 throw new \InvalidArgumentException('Role slug can only contain lowercase alpha-numeric characters and underscores.');
             }
         });
     }
 
     public const ROLE_SUPER_USER = 'super_user';
+
     public const ROLE_STAFF = 'staff';
+
     public const ROLE_SELLER = 'seller';
+
     public const ROLE_CUSTOMER = 'customer';
+
     public const ROLE_DELIVERY_PERSON = 'delivery_person';
 
     protected $fillable = [
@@ -49,17 +59,13 @@ class Role extends Model
     public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class)
-                    ->using(RoleUser::class)
-                    ->withPivot(['id', 'assigned_by', 'expires_at', 'is_active'])
-                    ->withTimestamps();
+            ->using(RoleUser::class)
+            ->withPivot(['id', 'assigned_by', 'expires_at', 'is_active'])
+            ->withTimestamps();
     }
 
     /**
      * Assign this role to a user.
-     *
-     * @param User $user
-     * @param User|null $assignedBy
-     * @return void
      */
     public function assignToUser(User $user, ?User $assignedBy = null): void
     {
@@ -68,9 +74,6 @@ class Role extends Model
 
     /**
      * Remove this role from a user.
-     *
-     * @param User $user
-     * @return void
      */
     public function removeFromUser(User $user): void
     {
@@ -79,8 +82,6 @@ class Role extends Model
 
     /**
      * Check if the role has any users.
-     *
-     * @return bool
      */
     public function hasUsers(): bool
     {

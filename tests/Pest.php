@@ -1,5 +1,9 @@
 <?php
 
+use App\Models\User;
+use Illuminate\Foundation\Testing\DatabaseTruncation;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
 /*
@@ -14,8 +18,12 @@ use Tests\TestCase;
 */
 
 pest()->extend(TestCase::class)
-    ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
+    ->use(RefreshDatabase::class)
     ->in('Feature');
+
+pest()->extend(TestCase::class)
+    ->use(DatabaseTruncation::class)
+    ->in('Browser');
 
 /*
 |--------------------------------------------------------------------------
@@ -46,4 +54,17 @@ expect()->extend('toBeOne', function () {
 function something()
 {
     // ..
+}
+
+/**
+ * Create a user with a specific role for browser testing.
+ */
+function createBrowserUserWithRole(string $role, string $email): void
+{
+    $user = User::factory()->create([
+        'email' => $email,
+        'password' => Hash::make('password'),
+    ]);
+
+    $user->assignRole($role);
 }

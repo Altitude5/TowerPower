@@ -2,9 +2,14 @@
 
 namespace App\Filament\Resources\Users;
 
-use App\Filament\Resources\Users\Pages\ManageUsers;
+use App\Filament\Resources\Users\Pages\CreateUsers;
+use App\Filament\Resources\Users\Pages\EditUsers;
+use App\Filament\Resources\Users\Pages\ListUsers;
+use App\Filament\Resources\Users\Pages\ViewUser;
+use App\Models\Role;
 use App\Models\User;
 use BackedEnum;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -13,9 +18,12 @@ use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
+use Filament\Actions\ViewAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
@@ -30,6 +38,26 @@ class UserResource extends Resource
     protected static ?string $model = User::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+
+    public static function infolist(Schema $schema): Schema
+    {
+        return $schema
+            ->components([
+                TextEntry::make('name'),
+                TextEntry::make('email'),
+                // Select::make('roles')
+                //     ->relationship('roles', 'name')
+                //     ->multiple()
+                //     ->preload()
+                //     ->searchable(),
+                Actions::make([
+                    Action::make('Edit')
+                        ->color('info')
+                        ->icon('heroicon-m-pencil')
+                        ->url(fn (User $record): string => UserResource::getUrl('edit', ['record' => $record])),
+                ]),
+            ]);
+    }
 
     public static function form(Schema $schema): Schema
     {
@@ -79,6 +107,7 @@ class UserResource extends Resource
                 TrashedFilter::make(),
             ])
             ->recordActions([
+                ViewAction::make(),
                 EditAction::make(),
                 DeleteAction::make(),
                 ForceDeleteAction::make(),
@@ -96,7 +125,10 @@ class UserResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => ManageUsers::route('/'),
+            'index' => ListUsers::route('/'),
+            'create' => CreateUsers::route('/create'),
+            'view' => ViewUser::route('/{record}/view'),
+            'edit' => EditUsers::route('/{record}'),
         ];
     }
 
@@ -104,20 +136,18 @@ class UserResource extends Resource
     {
         $query = parent::getEloquentQuery();
 
-        if (auth()->check() && auth()->user()->isStaff() && !auth()->user()->isSuperUser()) {
+        if (auth()->check() && auth()->user()->isStaff() && ! auth()->user()->isSuperUser()) {
             $query
-                ->whereHas('roles', fn($q) =>
-                    $q->whereIn('slug', [
-                        \App\Models\Role::ROLE_SELLER,
-                        \App\Models\Role::ROLE_CUSTOMER,
-                        \App\Models\Role::ROLE_DELIVERY_PERSON,
-                    ])->where('is_active', true)
+                ->whereHas('roles', fn ($q) => $q->whereIn('slug', [
+                    Role::ROLE_SELLER,
+                    Role::ROLE_CUSTOMER,
+                    Role::ROLE_DELIVERY_PERSON,
+                ])->where('is_active', true)
                 )
-                ->whereDoesntHave('roles', fn($q) =>
-                    $q->whereIn('slug', [
-                        \App\Models\Role::ROLE_SUPER_USER,
-                        \App\Models\Role::ROLE_STAFF,
-                    ])->where('is_active', true)
+                ->whereDoesntHave('roles', fn ($q) => $q->whereIn('slug', [
+                    Role::ROLE_SUPER_USER,
+                    Role::ROLE_STAFF,
+                ])->where('is_active', true)
                 );
         }
 
