@@ -22,8 +22,8 @@ class Role extends Model
                 throw new \InvalidArgumentException('Role name must be at least 3 characters.');
             }
 
-            if (! preg_match('/^[a-zA-Z0-9\s_]+$/', $role->name)) {
-                throw new \InvalidArgumentException('Role name can only contain alpha-numeric characters, spaces, and underscores.');
+            if (! preg_match('/^[a-zA-Z0-9\s]+$/', $role->name)) {
+                throw new \InvalidArgumentException('Role name can only contain alpha-numeric characters and spaces.');
             }
 
             // Auto-generate slug if missing

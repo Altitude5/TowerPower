@@ -4,11 +4,13 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Filament\Models\Contracts\FilamentUser;
-use Filament\Panel;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -19,7 +21,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
 class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable, TwoFactorAuthenticatable, SoftDeletes;
+    use HasFactory, Notifiable, SoftDeletes, TwoFactorAuthenticatable;
 
     /**
      * Get the attributes that should be cast.
@@ -34,15 +36,16 @@ class User extends Authenticatable implements FilamentUser
             'two_factor_confirmed_at' => 'datetime',
         ];
     }
+
     /**
      * The roles that belong to the user.
      */
-    public function roles(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    public function roles(): BelongsToMany
     {
         return $this->belongsToMany(Role::class, 'role_user', 'user_id', 'role_id')
-                    ->using(RoleUser::class)
-                    ->withPivot(['assigned_by', 'expires_at', 'is_active'])
-                    ->withTimestamps();
+            ->using(RoleUser::class)
+            ->withPivot(['assigned_by', 'expires_at', 'is_active'])
+            ->withTimestamps();
     }
 
     public function hasRole(string $slug): bool
@@ -91,8 +94,8 @@ class User extends Authenticatable implements FilamentUser
     public function assignRole(Role|string $role, ?User $assignedBy = null): void
     {
         $roleModel = $role instanceof Role ? $role : Role::where('slug', $role)->firstOrFail();
-        
-        if (!$this->hasRole($roleModel->slug)) {
+
+        if (! $this->hasRole($roleModel->slug)) {
             $this->roles()->attach($roleModel->id, [
                 'assigned_by' => $assignedBy?->id,
                 'is_active' => true,
@@ -115,8 +118,16 @@ class User extends Authenticatable implements FilamentUser
         $this->roles()->syncWithPivotValues($roleIds, ['is_active' => true]);
     }
 
-    public function canAccessPanel(\Filament\Panel $panel): bool
+    public function canAccessPanel(Panel $panel): bool
     {
         return $this->isAdmin();
+    }
+
+    /**
+     * Get the cart associated with the user.
+     */
+    public function cart(): HasOne
+    {
+        return $this->hasOne(Cart::class);
     }
 }

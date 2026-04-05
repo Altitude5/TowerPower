@@ -7,11 +7,11 @@ use Illuminate\Foundation\Testing\DatabaseTruncation;
 uses(DatabaseTruncation::class);
 
 beforeEach(function () {
-    Role::firstOrCreate(['name' => Role::ROLE_SUPER_USER]);
-    Role::firstOrCreate(['name' => Role::ROLE_STAFF]);
-    Role::firstOrCreate(['name' => Role::ROLE_SELLER]);
-    Role::firstOrCreate(['name' => Role::ROLE_CUSTOMER]);
-    Role::firstOrCreate(['name' => Role::ROLE_DELIVERY_PERSON]);
+    Role::firstOrCreate(['slug' => Role::ROLE_SUPER_USER], ['name' => 'Super User']);
+    Role::firstOrCreate(['slug' => Role::ROLE_STAFF], ['name' => 'Staff']);
+    Role::firstOrCreate(['slug' => Role::ROLE_SELLER], ['name' => 'Seller']);
+    Role::firstOrCreate(['slug' => Role::ROLE_CUSTOMER], ['name' => 'Customer']);
+    Role::firstOrCreate(['slug' => Role::ROLE_DELIVERY_PERSON], ['name' => 'Delivery Person']);
 
     $this->withoutVite();
 });
@@ -26,8 +26,8 @@ test('Super User can view Roles on the roles admin page', function () {
         ->fill('#form\.password', 'password')
         ->click('button[type="submit"]')
         ->waitForText('Roles')
-        ->assertSee('staff')
-        ->assertSee('super_user');
+        ->assertSee('Staff')
+        ->assertSee('Super User');
 });
 
 // Staff User cannot view Roles on the roles admin page (/admin/roles)
@@ -44,7 +44,7 @@ test('Staff User cannot view Roles on the roles admin page', function () {
 // Super User can view a Role on the role details admin page (/admin/roles/{role_id}/view)
 test('Super User can view a Role on the role details admin page', function () {
     createBrowserUserWithRole(Role::ROLE_SUPER_USER, 'super_role_view_single@example.com');
-    $role = Role::where('name', Role::ROLE_STAFF)->first();
+    $role = Role::where('slug', Role::ROLE_STAFF)->first();
 
     $page = visit("/admin/roles/{$role->id}/view");
     $page->fill('#form\.email', 'super_role_view_single@example.com')
@@ -52,13 +52,13 @@ test('Super User can view a Role on the role details admin page', function () {
         ->click('button[type="submit"]')
         ->waitForText('View Role')
         ->assertSee('Name')
-        ->assertSee('staff');
+        ->assertSee('Staff');
 });
 
 // Staff User cannot view a Role on the role details admin page (/admin/roles/{role_id}/view)
 test('Staff User cannot view a Role on the role details admin page', function () {
     createBrowserUserWithRole(Role::ROLE_STAFF, 'staff_role_single_no_view@example.com');
-    $role = Role::where('name', Role::ROLE_SUPER_USER)->first();
+    $role = Role::where('slug', Role::ROLE_SUPER_USER)->first();
 
     $page = visit("/admin/roles/{$role->id}/view");
     $page->fill('#form\.email', 'staff_role_single_no_view@example.com')

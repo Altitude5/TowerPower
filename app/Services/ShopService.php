@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Shop;
+use App\Models\SubOrder;
 use Exception;
 
 class ShopService
@@ -15,16 +16,16 @@ class ShopService
      */
     public function delete(Shop $shop): bool
     {
-        if (class_exists(\App\Models\Product::class) && $shop->products()->exists()) {
-            throw new Exception("Cannot delete shop because it has products.");
+        if ($shop->products()->exists()) {
+            throw new Exception('Cannot delete shop because it has products.');
         }
 
         if ($shop->owner_id !== null) {
-            throw new Exception("Cannot delete shop because it has an owner.");
+            throw new Exception('Cannot delete shop because it has an owner.');
         }
 
-        if (class_exists(\App\Models\SubOrder::class) && method_exists($shop, 'subOrders') && $shop->subOrders()->exists()) {
-            throw new Exception("Cannot delete shop because it has sub-orders.");
+        if (class_exists(SubOrder::class) && method_exists($shop, 'subOrders') && $shop->subOrders()->exists()) {
+            throw new Exception('Cannot delete shop because it has sub-orders.');
         }
 
         return $shop->delete();

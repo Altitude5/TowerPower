@@ -24,18 +24,17 @@ class Shop extends Model
     protected static function booted(): void
     {
         static::deleting(function (Shop $shop) {
-            // Product check (Unit 3 integration)
-            if (class_exists(\App\Models\Product::class) && $shop->products()->exists()) {
-                throw new \Exception("Cannot delete shop because it has products.");
+            if ($shop->products()->exists()) {
+                throw new \Exception('Cannot delete shop because it has products.');
             }
 
             if ($shop->owner_id !== null) {
-                throw new \Exception("Cannot delete shop because it has an owner.");
+                throw new \Exception('Cannot delete shop because it has an owner.');
             }
 
             // SubOrder check (Unit 5 integration)
-            if (class_exists(\App\Models\SubOrder::class) && method_exists($shop, 'subOrders') && $shop->subOrders()->exists()) {
-                throw new \Exception("Cannot delete shop because it has sub-orders.");
+            if (class_exists(SubOrder::class) && method_exists($shop, 'subOrders') && $shop->subOrders()->exists()) {
+                throw new \Exception('Cannot delete shop because it has sub-orders.');
             }
         });
     }

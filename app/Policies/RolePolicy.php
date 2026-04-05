@@ -32,7 +32,7 @@ class RolePolicy
 
     public function delete(User $user, Role $role): bool
     {
-        return $user->isSuperUser();
+        return $user->isSuperUser() && ! $role->hasUsers();
     }
 
     public function restore(User $user, Role $role): bool

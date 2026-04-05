@@ -8,7 +8,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
-    $this->shopService = new ShopService();
+    $this->shopService = new ShopService;
 });
 
 test('a Shop without an owner and without products can be deleted', function () {
