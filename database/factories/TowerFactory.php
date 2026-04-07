@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Models\City;
+use App\Models\Street;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -16,8 +18,15 @@ class TowerFactory extends Factory
      */
     public function definition(): array
     {
+        $city = City::factory()->create();
+        $street = Street::factory()->create(['city_id' => $city->id]);
+
         return [
             'name' => 'Tower ' . $this->faker->unique()->word,
+            'street_id' => $street->id,
+            'city_id' => $city->id,
+            'house_number' => $this->faker->buildingNumber,
+            'zipcode' => $this->faker->postcode,
         ];
     }
 }

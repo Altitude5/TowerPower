@@ -4,11 +4,14 @@ namespace App\Services;
 
 use App\Enums\OrderStatus;
 use App\Enums\SubOrderStatus;
+use App\Enums\TransactionStatus;
+use App\Exceptions\InsufficientStockException;
 use App\Models\Cart;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\SubOrder;
+use App\Models\Transaction;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
@@ -59,6 +62,17 @@ class OrderService
                         throw new \RuntimeException("Product {$product->name} is not available.");
                     }
 
+                    // Stock validation
+                    if ($product->stock_quantity !== null && (float) $product->stock_quantity < (float) $cartItem->quantity) {
+                        throw new InsufficientStockException($product);
+                    }
+                    if ($product->stock_weight !== null && (float) $product->stock_weight < (float) $cartItem->weight) {
+                        throw new InsufficientStockException($product);
+                    }
+                    if ($product->stock_volume !== null && (float) $product->stock_volume < (float) $cartItem->volume) {
+                        throw new InsufficientStockException($product);
+                    }
+
                     // Create OrderItem
                     OrderItem::create([
                         'sub_order_id' => $subOrder->id,
@@ -83,6 +97,17 @@ class OrderService
                     }
                 }
             }
+
+            // Create Transaction
+            Transaction::create([
+                'order_id' => $order->id,
+                'user_id' => $user->id,
+                'amount' => $order->totalFinalPrice(),
+                'status' => TransactionStatus::Pending,
+                'currency' => 'ILS',
+                'gateway' => config('payments.default_gateway'),
+                'transaction_reference' => null,
+            ]);
 
             // Clear CartItems
             $cart->items()->delete();
