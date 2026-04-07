@@ -13,7 +13,15 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        $this->call([
+            RoleSeeder::class,
+        ]);
+
+        if (app()->environment(['local', 'testing'])) {
+            $this->call([
+                DevUserSeeder::class,
+            ]);
+        }
 
         User::factory()->create([
             'name' => 'Test User',
