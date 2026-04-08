@@ -5,8 +5,9 @@ use App\Models\Street;
 use App\Models\Tower;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
-uses(RefreshDatabase::class);
+uses(TestCase::class, RefreshDatabase::class);
 
 it('calculates full address correctly', function () {
     $city = City::factory()->create(['name' => 'Tel Aviv']);
@@ -15,7 +16,7 @@ it('calculates full address correctly', function () {
         'city_id' => $city->id,
         'street_id' => $street->id,
         'house_number' => '14B',
-        'zipcode' => '61234'
+        'zipcode' => '61234',
     ]);
 
     expect($tower->fullAddress())->toBe('Herzl 14B, Tel Aviv 61234');
@@ -24,10 +25,10 @@ it('calculates full address correctly', function () {
 it('has many users', function () {
     $tower = Tower::factory()->create();
     $user = User::factory()->create();
-    
+
     $tower->users()->attach($user->id, [
         'apartment_number' => '4A',
-        'floor' => '1'
+        'floor' => '1',
     ]);
 
     expect($tower->users)->toHaveCount(1)

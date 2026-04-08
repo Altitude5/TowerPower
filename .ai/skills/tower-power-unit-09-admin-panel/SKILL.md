@@ -1,12 +1,7 @@
 ---
 name: tower-power-unit-09-admin
 description: >
-    Implement the Admin Panel for the Tower Power Laravel 13 app using
-    Filament 5.x. Use this skill when creating or modifying: Filament Resources,
-    Filament Pages, Filament Widgets, panel access control (canAccess),
-    per-resource Staff vs SuperUser policies, table filters, InfoLists, or
-    any /admin/* route. Do NOT use hand-rolled controllers or Inertia for
-    the admin panel — everything goes through Filament.
+    Implement the Admin Panel for the Tower Power Laravel 13 app using Filament 5.x. Use this skill when creating or modifying: Filament Resources, Filament Pages, Filament Widgets, panel access control (canAccess), per-resource Staff vs SuperUser policies, table filters, InfoLists, or any /admin/* route. Do NOT use hand-rolled controllers or Inertia for the admin panel — everything goes through Filament.
 ---
 
 # Unit 9 — Admin Panel (Filament 5.x)

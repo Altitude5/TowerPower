@@ -42,7 +42,7 @@ it('does not allow editing transactions', function () {
 
     // Edit action should not even exist
     Livewire::test(App\Filament\Resources\Transactions\Pages\ListTransactions::class)
-        ->assertTableActionDoesNotExist('edit', $transaction);
+        ->assertTableActionDoesNotExist('edit', null, $transaction);
 });
 
 it('does not allow deleting transactions', function () {
@@ -55,5 +55,5 @@ it('does not allow deleting transactions', function () {
 
     // Delete action should not even exist
     Livewire::test(App\Filament\Resources\Transactions\Pages\ListTransactions::class)
-        ->assertTableActionDoesNotExist('delete', $transaction);
+        ->assertTableActionDoesNotExist('delete', null, $transaction);
 });

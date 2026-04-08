@@ -1,11 +1,12 @@
 <?php
 
 use App\Models\City;
-use App\Models\Tower;
 use App\Models\Street;
+use App\Models\Tower;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
-uses(RefreshDatabase::class);
+uses(TestCase::class, RefreshDatabase::class);
 
 it('has many towers', function () {
     $city = City::factory()->create();

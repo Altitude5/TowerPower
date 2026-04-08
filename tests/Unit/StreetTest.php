@@ -4,8 +4,9 @@ use App\Models\City;
 use App\Models\Street;
 use App\Models\Tower;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
-uses(RefreshDatabase::class);
+uses(TestCase::class, RefreshDatabase::class);
 
 it('belongs to a city', function () {
     $city = City::factory()->create();
