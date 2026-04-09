@@ -72,20 +72,25 @@ class RoleResource extends Resource
                     ->searchable()
                     ->sortable(),
             ])
-            ->filters([
-                //
-            ])
-            ->recordActions([
+            ->defaultPaginationPageOption(25)
+            ->paginationPageOptions([25, 50, 100])
+            ->actions([
                 ViewAction::make(),
-                EditAction::make(),
+                EditAction::make()->visible(fn () => auth()->user()->isSuperUser()),
                 DeleteAction::make()
+                    ->visible(fn () => auth()->user()->isSuperUser())
                     ->hidden(fn (Role $record): bool => $record->hasUsers()),
             ])
-            ->toolbarActions([
+            ->bulkActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    DeleteBulkAction::make()->visible(fn () => auth()->user()->isSuperUser()),
                 ]),
             ]);
+    }
+
+    public static function canAccess(): bool
+    {
+        return auth()->user()->isSuperUser();
     }
 
     public static function getPages(): array

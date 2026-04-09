@@ -15,6 +15,8 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Filament\Actions\ViewAction;
+use Filament\Actions\BulkActionGroup;
 use Illuminate\Database\Eloquent\Builder;
 
 class OrderResource extends Resource
@@ -35,7 +37,20 @@ class OrderResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return OrdersTable::configure($table);
+        return $table
+            ->columns([
+                \Filament\Tables\Columns\TextColumn::make('id'),
+                \Filament\Tables\Columns\TextColumn::make('user.name')->label('Customer'),
+                \Filament\Tables\Columns\TextColumn::make('status'),
+            ])
+            ->defaultPaginationPageOption(25)
+            ->paginationPageOptions([25, 50, 100])
+            ->actions([
+                ViewAction::make(),
+            ])
+            ->bulkActions([
+                BulkActionGroup::make([]),
+            ]);
     }
 
     public static function getRelations(): array

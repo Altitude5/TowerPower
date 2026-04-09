@@ -27,7 +27,13 @@ class TowerResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return TowersTable::configure($table);
+        return $table
+            ->columns([
+                \Filament\Tables\Columns\TextColumn::make('name'),
+                \Filament\Tables\Columns\TextColumn::make('fullAddress')->label('Address'),
+            ])
+            ->defaultPaginationPageOption(25)
+            ->paginationPageOptions([25, 50, 100]);
     }
 
     public static function getRelations(): array
@@ -37,11 +43,25 @@ class TowerResource extends Resource
         ];
     }
 
+    public static function infolist(\Filament\Schemas\Schema $schema): \Filament\Schemas\Schema
+    {
+        return $schema->schema([
+            \Filament\Infolists\Components\Section::make('Details')->schema([
+                \Filament\Infolists\Components\TextEntry::make('id')->label('ID'),
+                \Filament\Infolists\Components\TextEntry::make('name'),
+                \Filament\Infolists\Components\TextEntry::make('fullAddress')->label('Address'),
+                \Filament\Infolists\Components\TextEntry::make('created_at')->dateTime(),
+                \Filament\Infolists\Components\TextEntry::make('updated_at')->dateTime(),
+            ]),
+        ]);
+    }
+
     public static function getPages(): array
     {
         return [
             'index' => ListTowers::route('/'),
             'create' => CreateTower::route('/create'),
+            'view' => \App\Filament\Resources\Towers\Pages\ViewTower::route('/{record}'),
             'edit' => EditTower::route('/{record}/edit'),
         ];
     }

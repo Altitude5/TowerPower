@@ -15,6 +15,8 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Filament\Actions\ViewAction;
+use Filament\Actions\BulkActionGroup;
 
 class TransactionResource extends Resource
 {
@@ -34,7 +36,20 @@ class TransactionResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return TransactionsTable::configure($table);
+        return $table
+            ->columns([
+                \Filament\Tables\Columns\TextColumn::make('order_id'),
+                \Filament\Tables\Columns\TextColumn::make('amount')->money('ILS'),
+                \Filament\Tables\Columns\TextColumn::make('status'),
+            ])
+            ->defaultPaginationPageOption(25)
+            ->paginationPageOptions([25, 50, 100])
+            ->actions([
+                ViewAction::make(),
+            ])
+            ->bulkActions([
+                BulkActionGroup::make([]),
+            ]);
     }
 
     public static function getRelations(): array

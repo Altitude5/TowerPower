@@ -31,5 +31,6 @@ GEMINI.md
 .agents
 .gemini
 boost.json
+/tests/Browser/Screenshots/
 TowerPowerSpecs.md
 .ai/skills/*

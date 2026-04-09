@@ -103,21 +103,23 @@ class UserResource extends Resource
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->defaultPaginationPageOption(25)
+            ->paginationPageOptions([25, 50, 100])
             ->filters([
                 TrashedFilter::make(),
             ])
-            ->recordActions([
+            ->actions([
                 ViewAction::make(),
-                EditAction::make(),
-                DeleteAction::make(),
-                ForceDeleteAction::make(),
-                RestoreAction::make(),
+                EditAction::make()->visible(fn () => auth()->user()->isSuperUser()),
+                DeleteAction::make()->visible(fn () => auth()->user()->isSuperUser()),
+                ForceDeleteAction::make()->visible(fn () => auth()->user()->isSuperUser()),
+                RestoreAction::make()->visible(fn () => auth()->user()->isSuperUser()),
             ])
-            ->toolbarActions([
+            ->bulkActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                    ForceDeleteBulkAction::make(),
-                    RestoreBulkAction::make(),
+                    DeleteBulkAction::make()->visible(fn () => auth()->user()->isSuperUser()),
+                    ForceDeleteBulkAction::make()->visible(fn () => auth()->user()->isSuperUser()),
+                    RestoreBulkAction::make()->visible(fn () => auth()->user()->isSuperUser()),
                 ]),
             ]);
     }

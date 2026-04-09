@@ -85,6 +85,41 @@ Each Resource must implement:
 
 ---
 
+## Admin Panel Pages and Authorization Matrix
+
+| Page                                         | Description                                            | Admin Access | Staff Access |
+| -------------------------------------------- | ------------------------------------------------------ | ------------ | ------------ |
+| /admin/users                                 | a list of Users                                        | Full         | Partial (c1) |
+| /admin/users/{user_id}                       | the details of the user with id == {user_id}           | Full         | Partial (c1) |
+| /admin/roles                                 | a list of all                                          | Full         | None         |
+| /admin/roles/{role_id}                       | the details of the role with id == {role_id}           | Full         | None         |
+| /admin/shops                                 | a list of all Shops                                    | Full         | View         |
+| /admin/shops/{shop_id}                       | the details of the shop with id == {shop_id}           | Full         | View         |
+| /admin/shops/{shop_id}/products              | all the products belonging to {shop_id}                | Full         | View         |
+| /admin/shops/{shop_id}/products/{product_id} | product {product_id} if it belongs to {shop_id}        | Full         | View         |
+| /admin/products                              | a list of all Products                                 | Full         | View         |
+| /admin/products/{product_id}                 | the details of the product with id == {product_id}     | Full         | View         |
+| /admin/orders                                | shows a list of all Orders                             | Full         | View         |
+| /admin/orders/{order_id}                     | s hows the details of the order with id == {order_id}  | Full         | View         |
+| /admin/transactions                          | list of all Transactions                               | Full         | None         |
+| /admin/transactions/{transaction_id}         | details of the transaction with id == {transaction_id} | Full         | None         |
+| /admin/discounts                             | list of all Discounts                                  |
+| /admin/discounts/{discount_id}               | details of the discount with id == {discount_id}       |
+| /admin/towers                                | list of all Towers                                     | Full         | View         |
+| /admin/towers/{tower_id}                     | details of the tower with id == {tower_id}             | Full         | View         |
+| /admin/categories                            | list of all Categories                                 | Full         | None         |
+| /admin/categories/{category_id}              | the details of the category with id == {category_id}   | Full         | None         |
+| /admin/geo                                   | shows a list of all Geo related information            | Full         | View         |
+| /admin/geo/importer                          | form to import geo data                                | Full         | None         |
+| /admin/geo/cities                            | all Cities                                             | Full         | View         |
+| /admin/geo/cities/{city_id}                  | towers in the city with id == {city_id}                | Full         | View         |
+| /admin/geo/streets                           | all Streets                                            | Full         | View         |
+| /admin/geo/streets/{street_id}               | towers in the street with id == {street_id}            | Full         | View         |
+
+(c1) - Staff Users can view Customers/Sellers/Delivery Persons. Cannot view other Staff Users or Super Users
+
+---
+
 ## Per-Resource Access Control
 
 Use Filament's **Policy** integration. Each Resource references its model

@@ -4,7 +4,7 @@ namespace App\Filament\Resources\SubOrders\Schemas;
 
 use App\Enums\SubOrderStatus;
 use App\Models\SubOrder;
-use Filament\Infolists\Components\Section;
+use Filament\Schemas\Components\Section;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Schema;
 

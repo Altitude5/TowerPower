@@ -2,8 +2,17 @@
 
 namespace App\Filament\Resources\Orders\RelationManagers;
 
-use App\Enums\SubOrderStatus;
+use Filament\Actions\AssociateAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\CreateAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\DissociateAction;
+use Filament\Actions\DissociateBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Forms\Components\TextInput;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -11,36 +20,41 @@ class SubOrdersRelationManager extends RelationManager
 {
     protected static string $relationship = 'subOrders';
 
+    public function form(Schema $schema): Schema
+    {
+        return $schema
+            ->components([
+                TextInput::make('sub_order')
+                    ->required()
+                    ->maxLength(255),
+            ]);
+    }
+
     public function table(Table $table): Table
     {
         return $table
-            ->recordTitleAttribute('id')
+            ->recordTitleAttribute('sub_order')
             ->columns([
-                TextColumn::make('id')
-                    ->label('ID')
-                    ->sortable(),
-                TextColumn::make('shop.name')
-                    ->label('Shop')
-                    ->searchable()
-                    ->sortable(),
-                TextColumn::make('status')
-                    ->badge()
-                    ->color(fn (SubOrderStatus $state): string => match ($state) {
-                        SubOrderStatus::Pending => 'gray',
-                        SubOrderStatus::Processing => 'info',
-                        SubOrderStatus::OutForDelivery => 'warning',
-                        SubOrderStatus::Delivered => 'success',
-                        SubOrderStatus::Completed => 'success',
-                        SubOrderStatus::Cancelled => 'danger',
-                        SubOrderStatus::Returned => 'danger',
-                    })
-                    ->sortable(),
-                TextColumn::make('totalFinalPrice')
-                    ->label('Total')
-                    ->money('ILS', divideBy: 100),
+                TextColumn::make('sub_order')
+                    ->searchable(),
             ])
             ->filters([
                 //
+            ])
+            ->headerActions([
+                CreateAction::make(),
+                AssociateAction::make(),
+            ])
+            ->recordActions([
+                EditAction::make(),
+                DissociateAction::make(),
+                DeleteAction::make(),
+            ])
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DissociateBulkAction::make(),
+                    DeleteBulkAction::make(),
+                ]),
             ]);
     }
 }

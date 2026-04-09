@@ -11,6 +11,11 @@ use App\Filament\Resources\Shops\Schemas\ShopInfolist;
 use App\Filament\Resources\Shops\Tables\ShopsTable;
 use App\Models\Shop;
 use BackedEnum;
+use Filament\Actions\ViewAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -36,7 +41,23 @@ class ShopResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return ShopsTable::configure($table);
+        return $table
+            ->columns([
+                \Filament\Tables\Columns\TextColumn::make('name')->searchable(),
+                \Filament\Tables\Columns\TextColumn::make('owner.name')->label('Owner'),
+            ])
+            ->defaultPaginationPageOption(25)
+            ->paginationPageOptions([25, 50, 100])
+            ->actions([
+                ViewAction::make(),
+                EditAction::make()->visible(fn () => auth()->user()->isSuperUser()),
+                DeleteAction::make()->visible(fn () => auth()->user()->isSuperUser()),
+            ])
+            ->bulkActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make()->visible(fn () => auth()->user()->isSuperUser()),
+                ]),
+            ]);
     }
 
     public static function getRelations(): array

@@ -7,17 +7,14 @@ use App\Models\User;
 
 class RolePolicy
 {
-    /**
-     * Determine whether the user can view any models.
-     */
     public function viewAny(User $user): bool
     {
-        return $user->isSuperUser();
+        return $user->isAdmin();
     }
 
     public function view(User $user, Role $role): bool
     {
-        return $user->isSuperUser();
+        return $user->isAdmin();
     }
 
     public function create(User $user): bool
@@ -32,16 +29,6 @@ class RolePolicy
 
     public function delete(User $user, Role $role): bool
     {
-        return $user->isSuperUser() && ! $role->hasUsers();
-    }
-
-    public function restore(User $user, Role $role): bool
-    {
-        return $user->isSuperUser();
-    }
-
-    public function forceDelete(User $user, Role $role): bool
-    {
-        return $user->isSuperUser();
+        return $user->isSuperUser() && !$role->hasUsers();
     }
 }
