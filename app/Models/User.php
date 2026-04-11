@@ -130,4 +130,23 @@ class User extends Authenticatable implements FilamentUser
     {
         return $this->hasOne(Cart::class);
     }
+
+    /**
+     * Get the towers that the user belongs to.
+     */
+    public function towers(): BelongsToMany
+    {
+        return $this->belongsToMany(Tower::class, 'tower_user', 'user_id', 'tower_id')
+            ->using(TowerUser::class)
+            ->withPivot(['apartment_number', 'floor'])
+            ->withTimestamps();
+    }
+
+    /**
+     * Get the orders associated with the user.
+     */
+    public function orders(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Order::class);
+    }
 }

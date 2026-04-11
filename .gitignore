@@ -35,5 +35,7 @@ GEMINI.md
 boost.json
 /tests/Browser/Screenshots/
 TowerPowerSpecs.md
-.ai/skills/
+/.ai/skills/
+storage/dummy/
+
 
