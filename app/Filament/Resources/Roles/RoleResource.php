@@ -40,6 +40,7 @@ class RoleResource extends Resource
                     Action::make('Edit')
                         ->color('info')
                         ->icon('heroicon-m-pencil')
+                        ->visible(fn () => auth()->user()->isSuperUser())
                         ->url(fn (Role $record): string => RoleResource::getUrl('edit', ['record' => $record])),
                 ]),
             ]);
@@ -90,7 +91,7 @@ class RoleResource extends Resource
 
     public static function canAccess(): bool
     {
-        return auth()->user()->isSuperUser();
+        return auth()->user()->isAdmin();
     }
 
     public static function getPages(): array

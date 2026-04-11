@@ -16,6 +16,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Filament\Actions\ViewAction;
+use Filament\Actions\EditAction;
 use Filament\Actions\BulkActionGroup;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -47,6 +48,7 @@ class OrderResource extends Resource
             ->paginationPageOptions([25, 50, 100])
             ->actions([
                 ViewAction::make(),
+                EditAction::make(),
             ])
             ->bulkActions([
                 BulkActionGroup::make([]),

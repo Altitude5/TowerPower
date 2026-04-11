@@ -21,6 +21,7 @@ description: >
 | price_type     | string          | required, enum: ['Unit', 'Weight', 'Volume']                      |
 | image_path     | string          | nullable, formats: jpg/gif/png, max 5MB                           |
 | sku            | string          | nullable, unique when present, pattern: `^[A-Z0-9-]{8,12}$`       |
+| slug           | string          | required. unique. alpha-numeric with underscores.                 |
 | shop_id        | bigint unsigned | FK → shops.id (no cascade)                                        |
 | stock_quantity | decimal(10,3)   | nullable, prohibited_with: stock_weight, stock_volume             |
 | stock_weight   | decimal(10,3)   | nullable, prohibited_with: stock_quantity, stock_volume           |

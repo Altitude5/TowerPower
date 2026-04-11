@@ -30,7 +30,9 @@ class TowerResource extends Resource
         return $table
             ->columns([
                 \Filament\Tables\Columns\TextColumn::make('name'),
-                \Filament\Tables\Columns\TextColumn::make('fullAddress')->label('Address'),
+                \Filament\Tables\Columns\TextColumn::make('full_address')
+                    ->label('Address')
+                    ->state(fn (Tower $record): string => $record->full_address()),
             ])
             ->defaultPaginationPageOption(25)
             ->paginationPageOptions([25, 50, 100]);
@@ -49,7 +51,9 @@ class TowerResource extends Resource
             \Filament\Infolists\Components\Section::make('Details')->schema([
                 \Filament\Infolists\Components\TextEntry::make('id')->label('ID'),
                 \Filament\Infolists\Components\TextEntry::make('name'),
-                \Filament\Infolists\Components\TextEntry::make('fullAddress')->label('Address'),
+                \Filament\Infolists\Components\TextEntry::make('full_address')
+                    ->label('Address')
+                    ->state(fn (Tower $record): string => $record->full_address()),
                 \Filament\Infolists\Components\TextEntry::make('created_at')->dateTime(),
                 \Filament\Infolists\Components\TextEntry::make('updated_at')->dateTime(),
             ]),

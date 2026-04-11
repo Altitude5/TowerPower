@@ -9,12 +9,12 @@ class TransactionPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->isSuperUser();
+        return $user->isAdmin();
     }
 
     public function view(User $user, Transaction $transaction): bool
     {
-        return $user->isSuperUser();
+        return $user->isAdmin();
     }
 
     public function create(User $user): bool

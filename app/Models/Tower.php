@@ -63,7 +63,7 @@ class Tower extends Model
     /**
      * Get the full address of the tower.
      */
-    public function fullAddress(): string
+    public function full_address(): string
     {
         $streetName = $this->street->name ?? 'Unknown Street';
         $cityName = $this->city->name ?? 'Unknown City';

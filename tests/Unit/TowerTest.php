@@ -19,7 +19,7 @@ it('calculates full address correctly', function () {
         'zipcode' => '61234',
     ]);
 
-    expect($tower->fullAddress())->toBe('Herzl 14B, Tel Aviv 61234');
+    expect($tower->full_address())->toBe('Herzl 14B, Tel Aviv 61234');
 });
 
 it('has many users', function () {

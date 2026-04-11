@@ -2,12 +2,14 @@
 
 namespace Database\Factories;
 
+use App\Models\Category;
 use App\Models\Product;
 use App\Models\Shop;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 /**
- * @extends Factory<Product>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Product>
  */
 class ProductFactory extends Factory
 {
@@ -18,84 +20,50 @@ class ProductFactory extends Factory
      */
     public function definition(): array
     {
+        $name = $this->faker->unique()->word;
         return [
-            'name' => fake()->unique()->words(3, true),
-            'price' => fake()->numberBetween(100, 50000),
-            'price_type' => fake()->randomElement(['Unit', 'Weight', 'Volume']),
-            'image_path' => null,
-            'sku' => null,
+            'name' => $name,
+            'slug' => Str::slug($name . '-' . $this->faker->randomNumber(3)),
+            'price' => $this->faker->numberBetween(100, 10000),
+            'price_type' => $this->faker->randomElement(['Unit', 'Weight', 'Volume']),
             'shop_id' => Shop::factory(),
-            'stock_quantity' => null,
-            'stock_weight' => null,
-            'stock_volume' => null,
-            'category_id' => null,
+            'category_id' => Category::factory(),
             'available' => true,
         ];
     }
 
-    /**
-     * State: product with an image.
-     */
-    public function withImage(string $path = 'products/sample.jpg'): static
+    public function withImage(string $path = 'products/example.png'): static
     {
-        return $this->state(fn (): array => [
+        return $this->state(fn (array $attributes) => [
             'image_path' => $path,
         ]);
     }
 
-    /**
-     * State: product with a SKU.
-     */
-    public function withSku(?string $sku = null): static
+    public function withStockQuantity(float $quantity = 10): static
     {
-        return $this->state(fn (): array => [
-            'sku' => $sku ?? strtoupper(fake()->bothify('???-####-???')),
+        return $this->state(fn (array $attributes) => [
+            'stock_quantity' => $quantity,
         ]);
     }
 
-    /**
-     * State: unavailable product.
-     */
+    public function withStockWeight(float $weight = 10.5): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'stock_weight' => $weight,
+        ]);
+    }
+
+    public function withStockVolume(float $volume = 5.0): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'stock_volume' => $volume,
+        ]);
+    }
+
     public function unavailable(): static
     {
-        return $this->state(fn (): array => [
+        return $this->state(fn (array $attributes) => [
             'available' => false,
-        ]);
-    }
-
-    /**
-     * State: product with stock quantity.
-     */
-    public function withStockQuantity(float $qty = 100.0): static
-    {
-        return $this->state(fn (): array => [
-            'stock_quantity' => $qty,
-            'stock_weight' => null,
-            'stock_volume' => null,
-        ]);
-    }
-
-    /**
-     * State: product with stock weight.
-     */
-    public function withStockWeight(float $weight = 50.0): static
-    {
-        return $this->state(fn (): array => [
-            'stock_quantity' => null,
-            'stock_weight' => $weight,
-            'stock_volume' => null,
-        ]);
-    }
-
-    /**
-     * State: product with stock volume.
-     */
-    public function withStockVolume(float $volume = 25.0): static
-    {
-        return $this->state(fn (): array => [
-            'stock_quantity' => null,
-            'stock_weight' => null,
-            'stock_volume' => $volume,
         ]);
     }
 }

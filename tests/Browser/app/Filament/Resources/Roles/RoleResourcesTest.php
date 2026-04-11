@@ -30,15 +30,18 @@ test('Super User can view Roles on the roles admin page', function () {
         ->assertSee('Super User');
 });
 
-// Staff User cannot view Roles on the roles admin page (/admin/roles)
-test('Staff User cannot view Roles on the roles admin page', function () {
-    createBrowserUserWithRole(Role::ROLE_STAFF, 'staff_role_no_view@example.com');
+// Staff User can view Roles on the roles admin page (/admin/roles) but cannot see management buttons
+test('Staff User can view Roles on the roles admin page', function () {
+    createBrowserUserWithRole(Role::ROLE_STAFF, 'staff_role_view@example.com');
 
     $page = visit('/admin/roles');
-    $page->fill('#form\.email', 'staff_role_no_view@example.com')
+    $page->fill('#form\.email', 'staff_role_view@example.com')
         ->fill('#form\.password', 'password')
         ->click('button[type="submit"]')
-        ->assertSee('403');
+        ->waitForText('Roles')
+        ->assertSee('Staff')
+        ->assertSee('Super User')
+        ->assertDontSee('New role');
 });
 
 // Super User can view a Role on the role details admin page (/admin/roles/{role_id}/view)
@@ -55,16 +58,19 @@ test('Super User can view a Role on the role details admin page', function () {
         ->assertSee('Staff');
 });
 
-// Staff User cannot view a Role on the role details admin page (/admin/roles/{role_id}/view)
-test('Staff User cannot view a Role on the role details admin page', function () {
-    createBrowserUserWithRole(Role::ROLE_STAFF, 'staff_role_single_no_view@example.com');
+// Staff User can view a Role on the role details admin page (/admin/roles/{role_id}/view) but cannot see Edit button
+test('Staff User can view a Role on the role details admin page', function () {
+    createBrowserUserWithRole(Role::ROLE_STAFF, 'staff_role_single_view@example.com');
     $role = Role::where('slug', Role::ROLE_SUPER_USER)->first();
 
     $page = visit("/admin/roles/{$role->id}/view");
-    $page->fill('#form\.email', 'staff_role_single_no_view@example.com')
+    $page->fill('#form\.email', 'staff_role_single_view@example.com')
         ->fill('#form\.password', 'password')
         ->click('button[type="submit"]')
-        ->assertSee('403');
+        ->waitForText('View Role')
+        ->assertSee('Name')
+        ->assertSee('Super User')
+        ->assertDontSee('Edit');
 });
 
 // --- Create Role ---

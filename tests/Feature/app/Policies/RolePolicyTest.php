@@ -24,14 +24,14 @@ test('Super User can manage roles', function () {
     expect($admin->can('delete', $role))->toBeTrue();
 });
 
-test('Staff cannot view roles', function () {
+test('Staff can view roles but not manage them', function () {
     $staff = User::factory()->create();
     $staff->assignRole(Role::ROLE_STAFF);
 
     $role = Role::where('slug', Role::ROLE_CUSTOMER)->first();
 
-    expect($staff->can('viewAny', Role::class))->toBeFalse();
-    expect($staff->can('view', $role))->toBeFalse();
+    expect($staff->can('viewAny', Role::class))->toBeTrue();
+    expect($staff->can('view', $role))->toBeTrue();
     expect($staff->can('create', Role::class))->toBeFalse();
     expect($staff->can('update', $role))->toBeFalse();
     expect($staff->can('delete', $role))->toBeFalse();
