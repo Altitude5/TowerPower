@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-
 use App\Models\Category;
 use App\Models\Product;
 use Inertia\Inertia;
@@ -21,7 +19,7 @@ class ProductController extends Controller
         return Inertia::render('Product/Show', [
             'category' => $category,
             'product' => $product,
-            'showAddToCart' => $product->stock_quantity !== null || $product->stock_weight !== null,
+            'showAddToCart' => true, // Always show for now
         ]);
     }
 }

@@ -16,9 +16,14 @@ beforeEach(function () {
     $this->withoutVite();
 });
 
-test('unauthenticated users are redirected to login', function () {
-    $this->get('/')->assertRedirect('/login');
+test('unauthenticated users are redirected to login for protected pages', function () {
     $this->get('/cart')->assertRedirect('/login');
+});
+
+test('unauthenticated users can access home page', function () {
+    $this->get('/')
+        ->assertSuccessful()
+        ->assertInertia(fn ($page) => $page->component('Home'));
 });
 
 test('authenticated user can access home page', function () {

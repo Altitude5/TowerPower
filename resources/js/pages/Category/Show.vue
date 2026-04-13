@@ -2,6 +2,9 @@
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { formatPrice } from '@/utils/money';
+import { route } from 'ziggy-js';
+
+const routeFn = route;
 
 interface Product {
     id: number;
@@ -48,7 +51,7 @@ defineProps<{
                     :key="product.id"
                     class="bg-white rounded-lg shadow-sm border border-slate-100 overflow-hidden group"
                 >
-                    <Link :href="route('product.show', { category: category.slug, product: product.slug })">
+                    <Link :href="routeFn('product.show', { category: category.slug, product: product.slug })">
                         <div class="aspect-square bg-slate-100 relative">
                             <img v-if="product.image_path" :src="`/storage/${product.image_path}`" class="object-cover w-full h-full" />
                             <div v-else class="flex items-center justify-center h-full text-slate-400 uppercase font-bold text-xs">No Image</div>

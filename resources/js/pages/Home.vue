@@ -3,12 +3,18 @@ import AppLayout from '@/Layouts/AppLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { formatPrice } from '@/utils/money';
 
+// Use window.route if available, or a fallback object to avoid TypeError
+const getRoute = (name: string, params: Record<string, any>) => {
+    return (window as any).route ? (window as any).route(name, params) : '#';
+};
+
 interface Product {
     id: number;
     name: string;
     slug: string;
     price: number;
     image_path: string | null;
+    category: Category | null;
 }
 
 interface Category {
@@ -66,13 +72,13 @@ defineProps<{
             </section>
 
             <!-- Categories Area -->
-            <section>
+            <section v-if="categories && categories.length > 0">
                 <h2 class="text-xl font-bold text-slate-900 mb-4">Categories</h2>
                 <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
                     <Link 
                         v-for="category in categories" 
                         :key="category.id"
-                        :href="route('category.show', { category: category.slug })"
+                        :href="getRoute('category.show', { category: category.slug })"
                         class="bg-white p-4 rounded-lg shadow-sm border border-slate-100 hover:border-blue-400 transition text-center"
                     >
                         <span class="font-medium text-slate-800">{{ category.name }}</span>
@@ -81,7 +87,7 @@ defineProps<{
             </section>
 
             <!-- Featured Products -->
-            <section>
+            <section v-if="featuredProducts">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-xl font-bold text-slate-900">Featured Products</h2>
                 </div>
@@ -90,10 +96,22 @@ defineProps<{
                         v-for="product in featuredProducts" 
                         :key="product.id"
                         class="bg-white rounded-lg shadow-sm border border-slate-100 overflow-hidden group"
-                    >
-                        <Link :href="route('product.show', { category: categories.find(c => true)?.slug || 'misc', product: product.slug })">
+                    >{{ categories.length }} {{ categories[0]  }} | {{  product.slug }}
+                        <!-- <Link :href="getRoute('product.show', { category: categories && categories.length > 0 ? categories[0].slug : 'misc', product: product.slug })">
                             <div class="aspect-square bg-slate-100 relative">
-                                <img v-if="product.image_path" :src="`/storage/${product.image_path}`" class="object-cover w-full h-full" />
+                                <img v-if="product.image_path" :src="`/${product.image_path}`" class="object-cover w-full h-full" />
+                                <div v-else class="flex items-center justify-center h-full text-slate-400 uppercase font-bold text-xs">No Image</div>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="font-semibold text-slate-800 group-hover:text-blue-600 transition">{{ product.name }}</h3>
+                                <p class="text-blue-700 font-bold mt-1">{{ formatPrice(product.price) }}</p>
+                            </div>
+                        </Link> -->
+                         <Link 
+                         
+                         :href="`/category/${product.category?.slug}/${product.slug}`">
+                            <div class="aspect-square bg-slate-100 relative">
+                                <img v-if="product.image_path" :src="`/${product.image_path}`" class="object-cover w-full h-full" />
                                 <div v-else class="flex items-center justify-center h-full text-slate-400 uppercase font-bold text-xs">No Image</div>
                             </div>
                             <div class="p-4">
@@ -101,6 +119,17 @@ defineProps<{
                                 <p class="text-blue-700 font-bold mt-1">{{ formatPrice(product.price) }}</p>
                             </div>
                         </Link>
+                        {{ product.category?.slug  }}
+                        <!-- <Link :href="getRoute('product.show', { category: categories && categories.length > 0 ? categories[0].slug : 'misc', product: product.slug })">
+                            <div class="aspect-square bg-slate-100 relative">
+                                <img v-if="product.image_path" :src="`/${product.image_path}`" class="object-cover w-full h-full" />
+                                <div v-else class="flex items-center justify-center h-full text-slate-400 uppercase font-bold text-xs">No Image</div>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="font-semibold text-slate-800 group-hover:text-blue-600 transition">{{ product.name }}</h3>
+                                <p class="text-blue-700 font-bold mt-1">{{ formatPrice(product.price) }}</p>
+                            </div>
+                        </Link> -->
                     </div>
                 </div>
             </section>

@@ -2,6 +2,9 @@
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { formatPrice } from '@/utils/money';
+import { route } from 'ziggy-js';
+
+const routeFn = route;
 
 interface Category {
     id: number;
@@ -33,14 +36,24 @@ const form = useForm({
 });
 
 const addToCart = () => {
-    // form.post(route('cart.store'));
-    alert('Product added to cart (placeholder)');
+    form.post(`/cart/add/${form.product_id}`, {
+        onSuccess: () => {
+            alert('Product added to cart!');
+            form.reset();
+        },
+        onError: () => {
+            alert('There was an error adding the product to your cart.');
+        }
+    });
 };
 </script>
 
 <template>
     <Head :title="product.name" />
-    <AppLayout :breadcrumbs="[{ title: 'Home', href: '/' }, { title: category.name, href: route('category.show', { category: category.slug }) }, { title: product.name, href: '' }]">
+    <AppLayout 
+    
+    :breadcrumbs="[]
+    ">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-12 bg-white p-8 rounded-xl shadow-sm border border-slate-100">
             <!-- Image Section -->
             <div class="aspect-square bg-slate-50 rounded-lg overflow-hidden border border-slate-200">

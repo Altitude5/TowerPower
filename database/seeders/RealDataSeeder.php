@@ -6,7 +6,6 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\Shop;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class RealDataSeeder extends Seeder
@@ -40,7 +39,7 @@ class RealDataSeeder extends Seeder
                     'name' => $p['name'],
                     'price' => $p['price'],
                     'price_type' => 'Weight',
-                    'image_path' => 'products/' . $p['image'],
+                    'image_path' => ''.$p['image'],
                     'shop_id' => $fishShop->id,
                     'category_id' => $fishCategory->id,
                     'available' => true,
