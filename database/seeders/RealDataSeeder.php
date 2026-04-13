@@ -23,13 +23,13 @@ class RealDataSeeder extends Seeder
 
         // 3. Seed Fish Products
         $products = [
-            ['name' => 'Salmon', 'image' => 'salmon.png', 'price' => 6900],
-            ['name' => 'Tilapia', 'image' => 'tilapia.png', 'price' => 6490],
-            ['name' => 'Alaska Pollock', 'image' => 'pollock.png', 'price' => 3290],
-            ['name' => 'Cod', 'image' => 'cod.png', 'price' => 12000],
-            ['name' => 'Catfish', 'image' => 'catfish.png', 'price' => 6090],
-            ['name' => 'Carp', 'image' => 'carp.png', 'price' => 6690],
-            ['name' => 'Sardines', 'image' => 'sardines.png', 'price' => 2020],
+            ['name' => 'Salmon', 'image' => 'salmon.png', 'price_type' => 'Weight', 'price' => 6900],
+            ['name' => 'Tilapia', 'image' => 'tilapia.png', 'price_type' => 'Weight', 'price' => 6490],
+            ['name' => 'Alaska Pollock', 'image' => 'pollock.png', 'price_type' => 'Weight', 'price' => 3290],
+            ['name' => 'Cod', 'image' => 'cod.png', 'price_type' => 'Weight', 'price' => 12000],
+            ['name' => 'Catfish', 'image' => 'catfish.png', 'price_type' => 'Weight', 'price' => 6090],
+            ['name' => 'Carp', 'image' => 'carp.png', 'price_type' => 'Weight', 'price' => 6690],
+            ['name' => 'Sardines', 'image' => 'sardines.png', 'price_type' => 'Unit', 'price' => 2020],
         ];
 
         foreach ($products as $p) {
@@ -38,7 +38,7 @@ class RealDataSeeder extends Seeder
                 [
                     'name' => $p['name'],
                     'price' => $p['price'],
-                    'price_type' => 'Weight',
+                    'price_type' => ''.$p['price_type'],
                     'image_path' => ''.$p['image'],
                     'shop_id' => $fishShop->id,
                     'category_id' => $fishCategory->id,
