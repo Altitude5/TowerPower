@@ -19,37 +19,64 @@ class CartService
     }
 
     /**
-     * Add a product to the cart with price and name snapshots.
+     * Add or update a product in the cart.
+     * 
+     * @param array $data ['quantity' => 1, 'absolute' => true] or ['quantity' => 1] (default: increment)
      */
     public static function addItem(User $user, Product $product, array $data): CartItem
     {
-        // Enforce mutual exclusivity of quantity, weight, and volume
-        $provided = collect($data)->only(['quantity', 'weight', 'volume'])->filter()->count();
-        if ($provided !== 1) {
-            throw new \InvalidArgumentException('A cart item must have exactly one of: quantity, weight, or volume.');
+        $isAbsolute = $data['absolute'] ?? false;
+        
+        // Relax validation: only check for required fields if it's NOT an absolute update,
+        // or if we are not attempting to set the value to 0.
+        if (!$isAbsolute) {
+            $provided = collect($data)->only(['quantity', 'weight', 'volume'])->filter()->count();
+            if ($provided !== 1) {
+                throw new \InvalidArgumentException('A cart item must have exactly one of: quantity, weight, or volume.');
+            }
         }
 
-        return DB::transaction(function () use ($user, $product, $data) {
+        return DB::transaction(function () use ($user, $product, $data, $isAbsolute) {
             $cart = Cart::where('user_id', $user->id)
                 ->lockForUpdate()
                 ->firstOrCreate(['user_id' => $user->id]);
 
-            // Check if tower needs switching (if tower_id is provided in data or already set)
             if (isset($data['tower_id']) && $cart->tower_id !== (int) $data['tower_id']) {
                 self::switchTower($cart, (int) $data['tower_id']);
             }
 
-            // Check if item already exists in cart
             $existingItem = $cart->items()
                 ->where('product_id', $product->id)
                 ->first();
 
             if ($existingItem) {
+                $isAbsolute = $data['absolute'] ?? false;
+                
+                if ($isAbsolute) {
+                    $newQuantity = array_key_exists('quantity', $data) ? $data['quantity'] : $existingItem->quantity;
+                    $newWeight = array_key_exists('weight', $data) ? $data['weight'] : $existingItem->weight;
+                    $newVolume = array_key_exists('volume', $data) ? $data['volume'] : $existingItem->volume;
+                } else {
+                    $newQuantity = isset($data['quantity']) ? bcadd($existingItem->quantity ?? '0', (string) $data['quantity'], 3) : $existingItem->quantity;
+                    $newWeight = isset($data['weight']) ? bcadd($existingItem->weight ?? '0', (string) $data['weight'], 3) : $existingItem->weight;
+                    $newVolume = isset($data['volume']) ? bcadd($existingItem->volume ?? '0', (string) $data['volume'], 3) : $existingItem->volume;
+                }
+
+                // Check for deletion: only if the active column (based on product type) is set to <= 0.
+                $shouldDelete = false;
+                if ($product->price_type === 'Unit' && $newQuantity !== null && bccomp((string)$newQuantity, '0', 3) <= 0) $shouldDelete = true;
+                if ($product->price_type === 'Weight' && $newWeight !== null && bccomp((string)$newWeight, '0', 3) <= 0) $shouldDelete = true;
+                if ($product->price_type === 'Volume' && $newVolume !== null && bccomp((string)$newVolume, '0', 3) <= 0) $shouldDelete = true;
+
+                if ($shouldDelete) {
+                    $existingItem->delete();
+                    return $existingItem;
+                }
+
                 $existingItem->update([
-                    'quantity' => isset($data['quantity']) ? bcadd($existingItem->quantity ?? '0', (string) $data['quantity'], 3) : $existingItem->quantity,
-                    'weight' => isset($data['weight']) ? bcadd($existingItem->weight ?? '0', (string) $data['weight'], 3) : $existingItem->weight,
-                    'volume' => isset($data['volume']) ? bcadd($existingItem->volume ?? '0', (string) $data['volume'], 3) : $existingItem->volume,
-                    // Snapshots are updated to current product state
+                    'quantity' => $newQuantity,
+                    'weight' => $newWeight,
+                    'volume' => $newVolume,
                     'price' => $product->price,
                     'price_type' => $product->price_type,
                     'product_name' => $product->name,
@@ -60,9 +87,9 @@ class CartService
 
             return $cart->items()->create([
                 'product_id' => $product->id,
-                'product_name' => $product->name,       // snapshot
-                'price' => $product->price,             // snapshot
-                'price_type' => $product->price_type,   // snapshot
+                'product_name' => $product->name,
+                'price' => $product->price,
+                'price_type' => $product->price_type,
                 'quantity' => $data['quantity'] ?? null,
                 'weight' => $data['weight'] ?? null,
                 'volume' => $data['volume'] ?? null,

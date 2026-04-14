@@ -123,6 +123,21 @@ it('clears items without deleting the cart row', function () {
     expect(CartItem::count())->toBe(0);
 });
 
+it('decrements quantity and deletes item if it reaches zero', function () {
+    $user = User::factory()->create();
+    $product = Product::factory()->create(['price_type' => 'Unit']);
+
+    CartService::addItem($user, $product, ['quantity' => 2]);
+    expect(CartItem::count())->toBe(1);
+
+    CartService::addItem($user, $product, ['quantity' => -1]);
+    $cartItem = CartItem::where('product_id', $product->id)->first();
+    expect($cartItem->quantity)->toBe('1.000');
+
+    CartService::addItem($user, $product, ['quantity' => -1]);
+    expect(CartItem::count())->toBe(0);
+});
+
 it('throws an exception if more than one of quantity, weight, or volume is provided', function () {
     $user = User::factory()->create();
     $product = Product::factory()->create();

@@ -2,6 +2,7 @@
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { formatPrice } from '@/utils/money';
+import AddToCartButton from '@/components/AddToCartButton.vue';
 
 // Use window.route if available, or a fallback object to avoid TypeError
 const getRoute = (name: string, params: Record<string, any>) => {
@@ -13,6 +14,7 @@ interface Product {
     name: string;
     slug: string;
     price: number;
+    price_type: 'Unit' | 'Weight' | 'Volume';
     image_path: string | null;
     category: Category | null;
 }
@@ -105,6 +107,10 @@ defineProps<{
                             <div class="p-4">
                                 <h3 class="font-semibold text-slate-800 group-hover:text-blue-600 transition">{{ product.name }}</h3>
                                 <p class="text-blue-700 font-bold mt-1">{{ formatPrice(product.price) }}</p>
+
+                                <div class="mt-4">
+                                    <AddToCartButton :product-id="product.id" :price-type="product.price_type" />
+                                </div>
                             </div>
                         </Link> -->
                          <Link 
@@ -117,6 +123,10 @@ defineProps<{
                             <div class="p-4">
                                 <h3 class="font-semibold text-slate-800 group-hover:text-blue-600 transition">{{ product.name }}</h3>
                                 <p class="text-blue-700 font-bold mt-1">{{ formatPrice(product.price) }}</p>
+
+                                <div class="mt-4">
+                                    <AddToCartButton :product-id="product.id" :price-type="product.price_type" />
+                                </div>
                             </div>
                         </Link>
                         {{ product.category?.slug  }}
@@ -128,6 +138,10 @@ defineProps<{
                             <div class="p-4">
                                 <h3 class="font-semibold text-slate-800 group-hover:text-blue-600 transition">{{ product.name }}</h3>
                                 <p class="text-blue-700 font-bold mt-1">{{ formatPrice(product.price) }}</p>
+
+                                <div class="mt-4">
+                                    <AddToCartButton :product-id="product.id" :price-type="product.price_type" />
+                                </div>
                             </div>
                         </Link> -->
                     </div>

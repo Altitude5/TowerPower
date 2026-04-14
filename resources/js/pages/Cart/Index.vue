@@ -6,7 +6,10 @@ import { computed } from 'vue';
 
 interface CartItem {
     id: number;
-    quantity: number;
+    quantity: number | null;
+    weight: number | null;
+    volume: number | null;
+    price_type: 'Unit' | 'Weight' | 'Volume';
     product: {
         id: number;
         name: string;
@@ -26,7 +29,10 @@ const props = defineProps<{
 }>();
 
 const total = computed(() => {
-    return props.items.reduce((acc, item) => acc + (item.product.price * item.quantity), 0);
+    return props.items.reduce((acc, item) => {
+        const val = item.quantity ?? item.weight ?? item.volume ?? 0;
+        return acc + (item.product.price * val);
+    }, 0);
 });
 
 const checkout = () => {
@@ -54,10 +60,16 @@ const checkout = () => {
                         </div>
                         <div class="flex-1">
                             <h3 class="font-semibold text-slate-800">{{ item.product.name }}</h3>
-                            <p class="text-slate-500 text-sm">Qty: {{ item.quantity }} × {{ formatPrice(item.product.price) }}</p>
+                            <p class="text-slate-500 text-sm">
+                                {{ item.price_type }}: 
+                                {{ item.quantity ?? item.weight ?? item.volume }} 
+                                × {{ formatPrice(item.product.price) }}
+                            </p>
                         </div>
                         <div class="text-right">
-                            <p class="font-bold text-slate-900">{{ formatPrice(item.product.price * item.quantity) }}</p>
+                            <p class="font-bold text-slate-900">
+                                {{ formatPrice(item.product.price * (item.quantity ?? item.weight ?? item.volume ?? 0)) }}
+                            </p>
                         </div>
                     </div>
                 </div>

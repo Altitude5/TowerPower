@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import AppLayout from '@/Layouts/AppLayout.vue';
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import { Head, Link } from '@inertiajs/vue3';
 import { formatPrice } from '@/utils/money';
-import { route } from 'ziggy-js';
-
-const routeFn = route;
+import AddToCartButton from '@/components/AddToCartButton.vue';
 
 interface Category {
     id: number;
@@ -28,24 +26,6 @@ const props = defineProps<{
     product: Product;
     showAddToCart: boolean;
 }>();
-
-// Simple Add to Cart Form (Placeholder for later implementation)
-const form = useForm({
-    product_id: props.product.id,
-    quantity: 1,
-});
-
-const addToCart = () => {
-    form.post(`/cart/add/${form.product_id}`, {
-        onSuccess: () => {
-            alert('Product added to cart!');
-            form.reset();
-        },
-        onError: () => {
-            alert('There was an error adding the product to your cart.');
-        }
-    });
-};
 </script>
 
 <template>
@@ -75,22 +55,7 @@ const addToCart = () => {
                 </div>
 
                 <div v-if="showAddToCart" class="space-y-4">
-                    <div class="flex items-center gap-4">
-                        <label for="quantity" class="text-sm font-medium text-slate-700">Quantity</label>
-                        <input 
-                            v-model="form.quantity"
-                            type="number" 
-                            id="quantity" 
-                            min="1" 
-                            class="w-20 rounded-md border-slate-300 focus:border-blue-500 focus:ring-blue-500"
-                        />
-                    </div>
-                    <button 
-                        @click="addToCart"
-                        class="w-full bg-blue-600 text-white px-8 py-4 rounded-lg font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-200"
-                    >
-                        Add to Cart
-                    </button>
+                    <AddToCartButton :product-id="product.id" :price-type="product.price_type as 'Unit' | 'Weight' | 'Volume'" />
                 </div>
                 <div v-else class="bg-red-50 text-red-700 p-4 rounded-lg border border-red-100 font-medium">
                     Out of Stock
