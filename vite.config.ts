@@ -24,4 +24,8 @@ export default defineConfig({
             formVariants: true,
         }),
     ],
+        test: {
+        environment: 'jsdom',
+        globals: true,
+    },
 });

@@ -32,7 +32,12 @@ const formattedQuantity = computed(() => {
 });
 
 const updateQuantity = (diff: number) => {
-    const key = props.priceType.toLowerCase() as 'quantity' | 'weight' | 'volume';
+    const keyMap = {
+        'Unit': 'quantity',
+        'Weight': 'weight',
+        'Volume': 'volume'
+    } as const;
+    const key = keyMap[props.priceType];
     const currentVal = typeof props.quantity === 'string' ? parseFloat(props.quantity) : props.quantity;
     const newVal = currentVal + diff;
 
