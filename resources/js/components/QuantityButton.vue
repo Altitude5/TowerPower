@@ -36,13 +36,6 @@ const updateQuantity = (diff: number) => {
     const currentVal = typeof props.quantity === 'string' ? parseFloat(props.quantity) : props.quantity;
     const newVal = currentVal + diff;
 
-    console.log('Update Quantity Debug:', {
-        key,
-        currentVal,
-        diff,
-        newVal
-    });
-
     // Send the calculated new value directly as 'absolute' to the server.
     form.transform(() => ({
         absolute: true,
