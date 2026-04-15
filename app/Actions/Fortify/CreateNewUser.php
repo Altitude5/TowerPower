@@ -33,6 +33,7 @@ class CreateNewUser implements CreatesNewUsers
         $user->towers()->attach($input['tower_id'], [
             'floor' => $input['floor'] ?? null,
             'apartment_number' => $input['apartment_number'] ?? null,
+            'is_default' => true,
         ]);
 
         return $user;

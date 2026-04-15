@@ -111,5 +111,18 @@ class RealDataSeeder extends Seeder
             'image_path' => 'החולה-10-רמת-גן.jpg',
         ]);
 
+        Tower::create([
+            'name' => 'מגדל החולה 100',
+            'city_id' => $city->id,
+            'street_id' => $street->id,
+            'house_number' => 100,
+            'zipcode' => fake()->postcode(),
+            'state' => 'Center',
+            'country' => 'Israel',
+            'latitude' => fake()->latitude(31.9, 32.2),
+            'longitude' => fake()->longitude(34.7, 34.9),
+            'image_path' => 'החולה-100-רמת-גן.jpg',
+        ]);
+
     }
 }
