@@ -25,7 +25,7 @@ class GeoController extends Controller
      */
     public function towersByStreet(Street $street): JsonResponse
     {
-        return response()->json($street->towers()->orderBy('name')->get(['id', 'name', 'house_number']));
+        return response()->json($street->towers()->orderBy('name')->get(['id', 'name', 'house_number', 'image_path']));
     }
 
     /**

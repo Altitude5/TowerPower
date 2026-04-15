@@ -30,7 +30,10 @@ class CreateNewUser implements CreatesNewUsers
             'password' => $input['password'],
         ]);
 
-        $user->towers()->attach($input['tower_id']);
+        $user->towers()->attach($input['tower_id'], [
+            'floor' => $input['floor'] ?? null,
+            'apartment_number' => $input['apartment_number'] ?? null,
+        ]);
 
         return $user;
     }

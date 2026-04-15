@@ -147,12 +147,23 @@ const resetGeoSelection = () => {
     streets.value = [];
     towers.value = [];
 };
+const selectedTower = computed(() => {
+    return towers.value.find(t => t.id === Number(selectedTowerId.value));
+});
+
+const towerImageUrl = computed(() => {
+    if (selectedTower.value && selectedTower.value.image_path) {
+        return '/storage/' + selectedTower.value.image_path;
+    }
+    return '/storage/tower3.jpg';
+});
 </script>
 
 <template>
     <AuthBase
         title="Create an account"
         description="Enter your details below to create your account"
+        :image="selectedTowerId ? towerImageUrl : '/storage/tower2.png'"
     >
         <Head title="Register" />
 
@@ -260,71 +271,99 @@ const resetGeoSelection = () => {
                     <InputError :message="errors.tower_id" />
                 </div>
 
-                <div class="grid gap-2">
-                    <Label for="name">Name</Label>
-                    <Input
-                        id="name"
-                        type="text"
-                        required
-                        autofocus
-                        :tabindex="2"
-                        autocomplete="name"
-                        name="name"
-                        placeholder="Full name"
-                    />
-                    <InputError :message="errors.name" />
-                </div>
+                <!-- Personal Details (Visible only after Tower selection) -->
+                <div v-if="selectedTowerId" class="grid gap-6 animate-in fade-in duration-500">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="grid gap-2">
+                            <Label for="floor">Floor</Label>
+                            <Input
+                                id="floor"
+                                type="text"
+                                name="floor"
+                                placeholder="Floor"
+                                :tabindex="2"
+                            />
+                            <InputError :message="errors.floor" />
+                        </div>
+                        <div class="grid gap-2">
+                            <Label for="apartment_number">Apartment #</Label>
+                            <Input
+                                id="apartment_number"
+                                type="text"
+                                name="apartment_number"
+                                placeholder="Apt #"
+                                :tabindex="3"
+                            />
+                            <InputError :message="errors.apartment_number" />
+                        </div>
+                    </div>
 
-                <div class="grid gap-2">
-                    <Label for="email">Email address</Label>
-                    <Input
-                        id="email"
-                        type="email"
-                        required
-                        :tabindex="3"
-                        autocomplete="email"
-                        name="email"
-                        placeholder="email@example.com"
-                    />
-                    <InputError :message="errors.email" />
-                </div>
+                    <div class="grid gap-2">
+                        <Label for="name">Name</Label>
+                        <Input
+                            id="name"
+                            type="text"
+                            required
+                            autofocus
+                            :tabindex="4"
+                            autocomplete="name"
+                            name="name"
+                            placeholder="Full name"
+                        />
+                        <InputError :message="errors.name" />
+                    </div>
 
-                <div class="grid gap-2">
-                    <Label for="password">Password</Label>
-                    <PasswordInput
-                        id="password"
-                        required
-                        :tabindex="4"
-                        autocomplete="new-password"
-                        name="password"
-                        placeholder="Password"
-                    />
-                    <InputError :message="errors.password" />
-                </div>
+                    <div class="grid gap-2">
+                        <Label for="email">Email address</Label>
+                        <Input
+                            id="email"
+                            type="email"
+                            required
+                            :tabindex="5"
+                            autocomplete="email"
+                            name="email"
+                            placeholder="email@example.com"
+                        />
+                        <InputError :message="errors.email" />
+                    </div>
 
-                <div class="grid gap-2">
-                    <Label for="password_confirmation">Confirm password</Label>
-                    <PasswordInput
-                        id="password_confirmation"
-                        required
-                        :tabindex="5"
-                        autocomplete="new-password"
-                        name="password_confirmation"
-                        placeholder="Confirm password"
-                    />
-                    <InputError :message="errors.password_confirmation" />
-                </div>
+                    <div class="grid gap-2">
+                        <Label for="password">Password</Label>
+                        <PasswordInput
+                            id="password"
+                            required
+                            :tabindex="6"
+                            autocomplete="new-password"
+                            name="password"
+                            placeholder="Password"
+                        />
+                        <InputError :message="errors.password" />
+                    </div>
 
-                <Button
-                    type="submit"
-                    class="mt-2 w-full"
-                    tabindex="6"
-                    :disabled="processing || !selectedTowerId"
-                    data-test="register-user-button"
-                >
-                    <Spinner v-if="processing" />
-                    Create account
-                </Button>
+                    <div class="grid gap-2">
+                        <Label for="password_confirmation">Confirm password</Label>
+                        <PasswordInput
+                            id="password_confirmation"
+                            required
+                            :tabindex="7"
+                            autocomplete="new-password"
+                            name="password_confirmation"
+                            placeholder="Confirm password"
+                        />
+                        <InputError :message="errors.password_confirmation" />
+                    </div>
+
+                    <Button
+                        type="submit"
+                        class="mt-2 w-full"
+                        tabindex="8"
+                        :disabled="processing"
+                        data-test="register-user-button"
+                    >
+                        <Spinner v-if="processing" />
+                        Create account
+                    </Button>
+                </div>
             </div>
 
             <div class="text-center text-sm text-muted-foreground">

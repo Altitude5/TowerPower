@@ -6,15 +6,22 @@ import { home } from '@/routes';
 defineProps<{
     title?: string;
     description?: string;
+    image?: string;
 }>();
 </script>
 
 <template>
     <div
-        class="flex min-h-svh flex-col items-center justify-center gap-6 bg-background p-6 md:p-10"
+        class="flex min-h-svh  flex-col items-center justify-center gap-6 bg-background "
     >
-        <div class="w-full max-w-sm">
-            <div class="flex flex-col gap-8">
+        <div class="flex flex-row w-full min-h-svh  ">
+
+ 
+            <div class="flex justify-center  w-1/2  p-6 md:p-10">
+            
+            
+            <div class="w-full max-w-sm ">
+                <div class="flex flex-col gap-8">
                 <div class="flex flex-col items-center gap-4">
                     <Link
                         :href="home()"
@@ -37,7 +44,15 @@ defineProps<{
                     </div>
                 </div>
                 <slot />
+                </div>
+                </div>
+            </div>
+                   
+            <div class="w-1/2 bg-teal-200">
+            <img :src="image || '/storage/tower2.png'" class="object-cover w-full h-full" />
             </div>
         </div>
+
+  
     </div>
 </template>

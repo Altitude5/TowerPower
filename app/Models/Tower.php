@@ -15,6 +15,7 @@ class Tower extends Model
 
     protected $fillable = [
         'name',
+        'image_path',
         'street_id',
         'house_number',
         'zipcode',
@@ -24,6 +25,14 @@ class Tower extends Model
         'latitude',
         'longitude',
     ];
+
+    /**
+     * Get the URL for the tower image.
+     */
+    public function getImageUrlAttribute(): string
+    {
+        return $this->image_path ? asset('storage/' . $this->image_path) : asset('storage/tower2.png');
+    }
 
     /**
      * Get the city that the tower belongs to.
