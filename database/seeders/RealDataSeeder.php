@@ -3,8 +3,11 @@
 namespace Database\Seeders;
 
 use App\Models\Category;
+use App\Models\City;
 use App\Models\Product;
 use App\Models\Shop;
+use App\Models\Street;
+use App\Models\Tower;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
@@ -45,6 +48,45 @@ class RealDataSeeder extends Seeder
                     'available' => true,
                 ]
             );
+        }
+
+        // 4. Seed Geo Data (Cities, Streets, Towers)
+        $israeliCities = [
+            'Tel-Aviv' => '5000',
+            'Ramat-Gan' => '8600',
+            'Givataim' => '6300',
+            'Petah Tikvah' => '7900',
+            'Rishon Lezion' => '8300',
+        ];
+
+        foreach ($israeliCities as $cityName => $cityCode) {
+            $city = City::firstOrCreate(
+                ['code' => $cityCode],
+                ['name' => $cityName]
+            );
+
+            // Create 3-5 streets per city
+            for ($i = 0; $i < rand(3, 5); $i++) {
+                $street = Street::firstOrCreate([
+                    'city_id' => $city->id,
+                    'name' => fake()->streetName(),
+                ]);
+
+                // Create 1-3 towers per street
+                for ($j = 0; $j < rand(1, 3); $j++) {
+                    Tower::create([
+                        'name' => 'Tower ' . fake()->company(),
+                        'city_id' => $city->id,
+                        'street_id' => $street->id,
+                        'house_number' => fake()->buildingNumber(),
+                        'zipcode' => fake()->postcode(),
+                        'state' => 'Center',
+                        'country' => 'Israel',
+                        'latitude' => fake()->latitude(31.9, 32.2),
+                        'longitude' => fake()->longitude(34.7, 34.9),
+                    ]);
+                }
+            }
         }
     }
 }

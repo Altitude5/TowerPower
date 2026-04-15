@@ -15,6 +15,7 @@ trait ProfileValidationRules
     protected function profileRules(?int $userId = null): array
     {
         return [
+            'tower_id' => ['required', 'exists:towers,id'],
             'name' => $this->nameRules(),
             'email' => $this->emailRules($userId),
         ];

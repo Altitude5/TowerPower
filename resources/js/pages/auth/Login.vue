@@ -8,15 +8,25 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import AuthBase from '@/layouts/AuthLayout.vue';
 import { register } from '@/routes';
 import { store } from '@/routes/login';
 import { request } from '@/routes/password';
 
+import { type Tower } from '@/types';
+
 defineProps<{
     status?: string;
     canResetPassword: boolean;
     canRegister: boolean;
+    towers: Tower[];
 }>();
 </script>
 
@@ -41,6 +51,25 @@ defineProps<{
             class="flex flex-col gap-6"
         >
             <div class="grid gap-6">
+                <div class="grid gap-2">
+                    <Label for="tower_id">Tower</Label>
+                    <Select name="tower_id">
+                        <SelectTrigger id="tower_id" :tabindex="0" class="w-full">
+                            <SelectValue placeholder="Select your tower" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem
+                                v-for="tower in towers"
+                                :key="tower.id"
+                                :value="tower.id.toString()"
+                            >
+                                {{ tower.name }}
+                            </SelectItem>
+                        </SelectContent>
+                    </Select>
+                    <InputError :message="errors.tower_id" />
+                </div>
+
                 <div class="grid gap-2">
                     <Label for="email">Email address</Label>
                     <Input

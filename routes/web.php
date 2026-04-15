@@ -2,12 +2,18 @@
 
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\GeoController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserDashboardController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+
+// Geo Routes
+Route::get('/geo/cities/{city}/streets', [GeoController::class, 'streetsByCity'])->name('geo.streets');
+Route::get('/geo/streets/{street}/towers', [GeoController::class, 'towersByStreet'])->name('geo.towers');
+Route::post('/geo/towers', [GeoController::class, 'storeTower'])->name('geo.towers.store');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/category/{category:slug}', [CategoryController::class, 'show'])->name('category.show');
