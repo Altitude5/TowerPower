@@ -17,22 +17,25 @@ class RealDataSeeder extends Seeder
     {
         // 1. Seed Categories
         $fishCategory = Category::firstOrCreate(['slug' => 'fish'], ['name' => 'Fish Shop']);
-        Category::firstOrCreate(['slug' => 'meat-and-puoltry'], ['name' => 'Meat & Poultry']);
-        Category::firstOrCreate(['slug' => 'wines-and-spirits'], ['name' => 'Wines and Spirits Shop']);
+        $meatCategory::firstOrCreate(['slug' => 'meat-and-puoltry'], ['name' => 'Meat & Poultry']);
+        $winesCategory::firstOrCreate(['slug' => 'wines-and-spirits'], ['name' => 'Wines and Spirits Shop']);
 
         // 2. Seed Shops
         $fishShop = Shop::firstOrCreate(['name' => 'Fish Shop']);
-        Shop::firstOrCreate(['name' => 'Meat Shop']);
+        $meatShop = Shop::firstOrCreate(['name' => 'Meat Shop']);
+        $winesShop = Shop::firstOrCreate(['name' => 'Wines Shop']);
 
         // 3. Seed Fish Products
         $products = [
             ['name' => 'Salmon', 'image' => 'salmon.png', 'price_type' => 'Weight', 'price' => 6900],
+            ['name' => 'Tuna', 'image' => 'satunalmon.png', 'price_type' => 'Weight', 'price' => 6900],
             ['name' => 'Tilapia', 'image' => 'tilapia.png', 'price_type' => 'Weight', 'price' => 6490],
             ['name' => 'Alaska Pollock', 'image' => 'pollock.png', 'price_type' => 'Weight', 'price' => 3290],
             ['name' => 'Cod', 'image' => 'cod.png', 'price_type' => 'Weight', 'price' => 12000],
             ['name' => 'Catfish', 'image' => 'catfish.png', 'price_type' => 'Weight', 'price' => 6090],
             ['name' => 'Carp', 'image' => 'carp.png', 'price_type' => 'Weight', 'price' => 6690],
-            ['name' => 'Sardines', 'image' => 'sardines.png', 'price_type' => 'Unit', 'price' => 2020],
+            ['name' => 'Sardines', 'image' => 'sardines.png', 'price_type' => 'Weight', 'price' => 6050],
+            ['name' => '4 Tuna cans', 'image' => '4-tuna.png', 'price_type' => 'Unit', 'price' => 2020],
         ];
 
         foreach ($products as $p) {

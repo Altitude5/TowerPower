@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import AppLayout from '@/Layouts/AppLayout.vue';
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
 import { formatPrice } from '@/utils/money';
 import { computed } from 'vue';
 
@@ -50,7 +50,7 @@ const getItemMultiplier = (item: CartItem) => {
 };
 
 const checkout = () => {
-    alert('Checkout flow not implemented in this unit.');
+    router.visit(route('checkout.index'));
 };
 </script>
 
