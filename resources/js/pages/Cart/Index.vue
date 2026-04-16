@@ -30,10 +30,24 @@ const props = defineProps<{
 
 const total = computed(() => {
     return props.items.reduce((acc, item) => {
-        const val = item.quantity ?? item.weight ?? item.volume ?? 0;
-        return acc + (item.product.price * val);
+        let val: number | string | null = 0;
+        if (item.price_type === 'Unit') val = item.quantity;
+        else if (item.price_type === 'Weight') val = item.weight;
+        else if (item.price_type === 'Volume') val = item.volume;
+
+        const numVal = typeof val === 'string' ? parseFloat(val) : (val ?? 0);
+        return acc + (item.product.price * numVal);
     }, 0);
 });
+
+const getItemMultiplier = (item: CartItem) => {
+    let val: number | string | null = 0;
+    if (item.price_type === 'Unit') val = item.quantity;
+    else if (item.price_type === 'Weight') val = item.weight;
+    else if (item.price_type === 'Volume') val = item.volume;
+    
+    return typeof val === 'string' ? parseFloat(val) : (val ?? 0);
+};
 
 const checkout = () => {
     alert('Checkout flow not implemented in this unit.');
@@ -62,13 +76,13 @@ const checkout = () => {
                             <h3 class="font-semibold text-slate-800">{{ item.product.name }}</h3>
                             <p class="text-slate-500 text-sm">
                                 {{ item.price_type }}: 
-                                {{ item.quantity ?? item.weight ?? item.volume }} 
+                                {{ getItemMultiplier(item) }} 
                                 × {{ formatPrice(item.product.price) }}
                             </p>
                         </div>
                         <div class="text-right">
                             <p class="font-bold text-slate-900">
-                                {{ formatPrice(item.product.price * (item.quantity ?? item.weight ?? item.volume ?? 0)) }}
+                                {{ formatPrice(item.product.price * getItemMultiplier(item)) }}
                             </p>
                         </div>
                     </div>

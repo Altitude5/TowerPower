@@ -15,6 +15,7 @@ it('calculates total price for unit quantity', function () {
     $cartItem = new CartItem([
         'price' => 1000,
         'quantity' => '2.500',
+        'price_type' => 'Unit',
     ]);
 
     // 1000 * 2.500 = 2500
@@ -25,6 +26,7 @@ it('calculates total price for weight quantity', function () {
     $cartItem = new CartItem([
         'price' => 500,
         'weight' => '1.750',
+        'price_type' => 'Weight',
     ]);
 
     // 500 * 1.750 = 875
@@ -35,6 +37,7 @@ it('calculates total price for volume quantity', function () {
     $cartItem = new CartItem([
         'price' => 2000,
         'volume' => '0.500',
+        'price_type' => 'Volume',
     ]);
 
     // 2000 * 0.500 = 1000
@@ -55,6 +58,7 @@ it('calculates total final price', function () {
     $cartItem = new CartItem([
         'price' => 1000,
         'quantity' => '3.000',
+        'price_type' => 'Unit',
     ]);
 
     // (1000 * 3) - 0 + 0 = 3000

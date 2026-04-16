@@ -91,14 +91,15 @@ class CartItem extends Model
      */
     public function totalPrice(): int
     {
-        $multiplier = '0';
+        $multiplier = match ($this->price_type) {
+            'Unit' => $this->quantity,
+            'Weight' => $this->weight,
+            'Volume' => $this->volume,
+            default => '0',
+        };
 
-        if ($this->quantity !== null) {
-            $multiplier = $this->quantity;
-        } elseif ($this->weight !== null) {
-            $multiplier = $this->weight;
-        } elseif ($this->volume !== null) {
-            $multiplier = $this->volume;
+        if ($multiplier === null) {
+            $multiplier = '0';
         }
 
         // Using bcmul for precision multiplication of decimal strings

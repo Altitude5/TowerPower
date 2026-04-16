@@ -61,11 +61,12 @@ defineProps<{
                         <div class="p-4">
                             <h3 class="font-semibold text-slate-800 group-hover:text-blue-600 transition">{{ product.name }}</h3>
                             <p class="text-blue-700 font-bold mt-1">{{ formatPrice(product.price) }}</p>
-                            <div class="mt-4">
-                                <AddToCartButton :product-id="product.id" :price-type="product.price_type" />
-                            </div>
                         </div>
+
                     </Link>
+                    <div class="m-4">
+                                <AddToCartButton :product-id="product.id" :price-type="product.price_type" />
+                    </div>
                 </div>
             </div>
 

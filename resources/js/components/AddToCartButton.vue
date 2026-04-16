@@ -20,9 +20,9 @@ const quantityInCart = computed(() => {
 
 const form = useForm({
     product_id: props.productId,
-    quantity: 0,
-    weight: 0,
-    volume: 0,
+    quantity: null,
+    weight: null,
+    volume: null,
 });
 
 const addToCart = () => {
@@ -39,6 +39,7 @@ const addToCart = () => {
 </script>
 
 <template>
+
     <div v-if="quantityInCart > 0">
         <QuantityButton 
             :product-id="productId" 
