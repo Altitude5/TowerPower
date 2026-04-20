@@ -61,15 +61,36 @@ const showAddTowerButton = computed(() => {
     return houseNumber.value && !loadingTowers.value && matchingTowers.value.length === 0;
 });
 
-// Watch houseNumber and towers to auto-select if only one tower matches
-watch([houseNumber, towers], () => {
-    const matches = matchingTowers.value;
-    if (matches.length === 1) {
-        selectedTowerId.value = String(matches[0].id);
-    } else if (matches.length === 0) {
-        selectedTowerId.value = '';
+import { useDebounceFn } from '@vueuse/core';
+
+// ... (other refs)
+
+// Removed auto-select watcher for single tower matches to enforce manual confirmation as per requirements.
+
+const fetchTower = useDebounceFn(async () => {
+    if (!houseNumber.value.trim() || !selectedStreetId.value) {
+        towers.value = [];
+        return;
     }
-}, { deep: true });
+    loadingTowers.value = true;
+    try {
+        const response = await axios.get(route('geo.towers', { street: selectedStreetId.value, house_number: houseNumber.value }));
+        if (response.data.found) {
+            towers.value = [response.data.tower];
+        } else {
+            towers.value = [];
+        }
+    } catch (error) {
+        console.error('Error fetching towers:', error);
+        towers.value = [];
+    } finally {
+        loadingTowers.value = false;
+    }
+}, 1000);
+
+watch(houseNumber, () => {
+    fetchTower();
+});
 
 watch(selectedCityId, async (newCityId) => {
     selectedStreetId.value = '';
@@ -91,22 +112,10 @@ watch(selectedCityId, async (newCityId) => {
     }
 });
 
-watch(selectedStreetId, async (newStreetId) => {
+watch(selectedStreetId, () => {
     selectedTowerId.value = '';
     houseNumber.value = '';
     towers.value = [];
-    
-    if (newStreetId) {
-        loadingTowers.value = true;
-        try {
-            const response = await axios.get(route('geo.towers', { street: newStreetId }));
-            towers.value = response.data;
-        } catch (error) {
-            console.error('Error fetching towers:', error);
-        } finally {
-            loadingTowers.value = false;
-        }
-    }
 });
 
 // Removed the problematic watcher that caused TypeError
@@ -163,7 +172,7 @@ const towerImageUrl = computed(() => {
     <AuthBase
         title="Create an account"
         description="Enter your details below to create your account"
-        :image="selectedTowerId ? towerImageUrl : '/storage/tower2.png'"
+        :image="(towers.length === 1 && towers[0].image_path) ? '/storage/' + towers[0].image_path : (selectedTowerId ? towerImageUrl : '/storage/powertower.png')"
     >
         <Head title="Register" />
 
@@ -176,40 +185,62 @@ const towerImageUrl = computed(() => {
             <div class="grid gap-6">
                 <!-- Collapsible Geo Selection Container -->
                 <div v-if="!selectedTowerId" class="grid gap-6">
-                    <div class="grid gap-2">
-                        <Label for="city_id">City</Label>
-                        <SearchableSelect
-                            v-model="selectedCityId"
-                            :options="cities"
-                            placeholder="Select City"
-                        />
+                    <div v-if="!towers.length" class="grid gap-6">
+                        <div class="grid gap-2">
+                            <Label for="city_id">City</Label>
+                            <SearchableSelect
+                                v-model="selectedCityId"
+                                :options="cities"
+                                placeholder="Select City"
+                            />
+                        </div>
+
+                        <div v-if="selectedCityId" class="grid gap-2">
+                            <Label for="street_id">Street</Label>
+                            <SearchableSelect
+                                v-model="selectedStreetId"
+                                :options="streets"
+                                placeholder="Select Street"
+                                :disabled="loadingStreets"
+                            />
+                            <div v-if="loadingStreets" class="text-xs text-muted-foreground italic">Loading streets...</div>
+                        </div>
+
+                        <div v-if="selectedStreetId" class="grid gap-2">
+                            <Label for="house_number">House Number</Label>
+                            <Input
+                                id="house_number"
+                                v-model="houseNumber"
+                                placeholder="e.g. 42"
+                            />
+                            <div v-if="loadingTowers" class="text-xs text-muted-foreground italic">Searching for tower...</div>
+                        </div>
                     </div>
 
-                    <div v-if="selectedCityId" class="grid gap-2">
-                        <Label for="street_id">Street</Label>
-                        <SearchableSelect
-                            v-model="selectedStreetId"
-                            :options="streets"
-                            placeholder="Select Street"
-                            :disabled="loadingStreets"
-                        />
-                        <div v-if="loadingStreets" class="text-xs text-muted-foreground italic">Loading streets...</div>
-                    </div>
-
-                    <div v-if="selectedStreetId" class="grid gap-2">
-                        <Label for="house_number">House Number</Label>
-                        <Input
-                            id="house_number"
-                            v-model="houseNumber"
-                            placeholder="e.g. 42"
-                        />
+                    <!-- Step 1d: Tower Confirmation -->
+                    <div v-else-if="towers.length === 1" class="grid gap-4 p-4 border rounded-lg bg-accent/50">
+                        <div class="space-y-1">
+                            <h3 class="font-semibold">{{ towers[0].name }}</h3>
+                            <p class="text-sm text-muted-foreground">{{ towers[0].full_address }}</p>
+                        </div>
+                        
+                        <Button type="button" @click="selectedTowerId = String(towers[0].id)" class="w-full">
+                            Yes, this is my Tower!
+                        </Button>
+                        
+                        <div class="text-center text-sm">
+                            <span class="text-muted-foreground">Not your building?</span>
+                            <button type="button" class="ml-1 text-primary hover:underline" @click="resetGeoSelection">
+                                Start over tower search
+                            </button>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Tower Selection/Creation -->
 
                 <!-- Tower Selection/Creation (Dependent on House Number) -->
-                <div v-if="houseNumber" class="grid gap-2">
+                <div v-if="houseNumber && towers.length > 1" class="grid gap-2">
                     <div v-if="showTowerSelect">
                         <Label for="tower_id" class="text-amber-600 font-medium">Found multiple towers at #{{ houseNumber }}</Label>
                         <SearchableSelect
@@ -231,45 +262,45 @@ const towerImageUrl = computed(() => {
                             start over tower search
                         </button>
                     </div>
-
-                    <div v-if="showAddTowerButton" class="pt-2">
-                        <Dialog v-model:open="isAddingTower">
-                            <DialogTrigger as-child>
-                                <Button type="button" variant="outline" class="w-full shadow-sm">
-                                    Add Tower at #{{ houseNumber }}
-                                </Button>
-                            </DialogTrigger>
-                            <DialogContent>
-                                <DialogHeader>
-                                    <DialogTitle>Add New Tower</DialogTitle>
-                                    <DialogDescription>
-                                        We couldn't find a tower at this address. Please provide a name to create it.
-                                    </DialogDescription>
-                                </DialogHeader>
-                                <div class="grid gap-4 py-4">
-                                    <div class="grid gap-2">
-                                        <Label for="new_tower_name">Tower Name (e.g. Tower A)</Label>
-                                        <Input
-                                            id="new_tower_name"
-                                            v-model="newTowerName"
-                                            placeholder="Enter tower name"
-                                        />
-                                        <p v-if="towerErrors.name" class="text-sm text-destructive font-medium">{{ towerErrors.name[0] }}</p>
-                                    </div>
-                                </div>
-                                <DialogFooter>
-                                    <Button type="button" @click="async () => await handleAddTower()" :disabled="savingTower || !newTowerName">
-                                        <Spinner v-if="savingTower" class="mr-2" />
-                                        Save Tower
-                                    </Button>
-                                </DialogFooter>
-                            </DialogContent>
-                        </Dialog>
-                    </div>
-
-                    <input type="hidden" name="tower_id" :value="selectedTowerId" />
-                    <InputError :message="errors.tower_id" />
                 </div>
+
+                <div v-if="houseNumber && towers.length === 0 && !loadingTowers" class="pt-2">
+                    <Dialog v-model:open="isAddingTower">
+                        <DialogTrigger as-child>
+                            <Button type="button" variant="outline" class="w-full shadow-sm">
+                                Add Tower at #{{ houseNumber }}
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>Add New Tower</DialogTitle>
+                                <DialogDescription>
+                                    We couldn't find a tower at this address. Please provide a name to create it.
+                                </DialogDescription>
+                            </DialogHeader>
+                            <div class="grid gap-4 py-4">
+                                <div class="grid gap-2">
+                                    <Label for="new_tower_name">Tower Name (e.g. Tower A)</Label>
+                                    <Input
+                                        id="new_tower_name"
+                                        v-model="newTowerName"
+                                        placeholder="Enter tower name"
+                                    />
+                                    <p v-if="towerErrors.name" class="text-sm text-destructive font-medium">{{ towerErrors.name[0] }}</p>
+                                </div>
+                            </div>
+                            <DialogFooter>
+                                <Button type="button" @click="async () => await handleAddTower()" :disabled="savingTower || !newTowerName">
+                                    <Spinner v-if="savingTower" class="mr-2" />
+                                    Save Tower
+                                </Button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
+                </div>
+                
+                <input type="hidden" name="tower_id" :value="selectedTowerId" />
+                <InputError :message="errors.tower_id" />
 
                 <!-- Personal Details (Visible only after Tower selection) -->
                 <div v-if="selectedTowerId" class="grid gap-6 animate-in fade-in duration-500">

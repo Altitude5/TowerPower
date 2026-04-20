@@ -21,10 +21,20 @@ class GeoController extends Controller
     }
 
     /**
-     * Get all towers on a given street.
+     * Get towers on a given street, optionally filtered by house_number.
      */
-    public function towersByStreet(Street $street): JsonResponse
+    public function towersByStreet(Request $request, Street $street): JsonResponse
     {
+        $houseNumber = $request->query('house_number');
+
+        if ($houseNumber) {
+            $tower = $street->towers()->where('house_number', $houseNumber)->first();
+            return response()->json([
+                'found' => (bool) $tower,
+                'tower' => $tower
+            ]);
+        }
+
         return response()->json($street->towers()->orderBy('name')->get(['id', 'name', 'house_number', 'image_path']));
     }
 

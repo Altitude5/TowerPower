@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\TowerFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Tower extends Model
 {
-    /** @use HasFactory<\Database\Factories\TowerFactory> */
+    /** @use HasFactory<TowerFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -31,7 +32,7 @@ class Tower extends Model
      */
     public function getImageUrlAttribute(): string
     {
-        return $this->image_path ? asset('storage/' . $this->image_path) : asset('storage/tower2.png');
+        return $this->image_path ? asset('storage/'.$this->image_path) : asset('storage/powertower.png');
     }
 
     /**
@@ -76,7 +77,7 @@ class Tower extends Model
     {
         $streetName = $this->street->name ?? 'Unknown Street';
         $cityName = $this->city->name ?? 'Unknown City';
-        
+
         return "{$streetName} {$this->house_number}, {$cityName} {$this->zipcode}";
     }
 }

@@ -28,11 +28,12 @@ defineProps<{
                         class="flex flex-col items-center gap-2 font-medium"
                     >
                         <div
-                            class="mb-1 flex h-9 w-9 items-center justify-center rounded-md"
+                            class="mb-1 flex w-80 items-center justify-center rounded-md"
                         >
-                            <AppLogoIcon
+                        <img src="/storage/logo.png" class="w-full h-full" />
+                            <!-- <AppLogoIcon
                                 class="size-9 fill-current text-[var(--foreground)] dark:text-white"
-                            />
+                            /> -->
                         </div>
                         <span class="sr-only">{{ title }}</span>
                     </Link>
@@ -48,8 +49,8 @@ defineProps<{
                 </div>
             </div>
                    
-            <div class="w-1/2 bg-teal-200">
-            <img :src="image || '/storage/tower2.png'" class="object-cover w-full h-full" />
+            <div class="w-1/2">
+            <img :src="image || '/storage/powertower.png'" class="object-cover w-full h-full" />
             </div>
         </div>
 

@@ -17,15 +17,15 @@ class RealDataSeeder extends Seeder
     {
         // 1. Seed Categories
         $fishCategory = Category::firstOrCreate(['slug' => 'fish'], ['name' => 'Fish Shop']);
-        $meatCategory::firstOrCreate(['slug' => 'meat-and-puoltry'], ['name' => 'Meat & Poultry']);
-        $winesCategory::firstOrCreate(['slug' => 'wines-and-spirits'], ['name' => 'Wines and Spirits Shop']);
+        $meatCategory = Category::firstOrCreate(['slug' => 'meat-and-puoltry'], ['name' => 'Meat & Poultry']);
+        $winesCategory = Category::firstOrCreate(['slug' => 'wines-and-spirits'], ['name' => 'Wines and Spirits Shop']);
 
         // 2. Seed Shops
         $fishShop = Shop::firstOrCreate(['name' => 'Fish Shop']);
         $meatShop = Shop::firstOrCreate(['name' => 'Meat Shop']);
         $winesShop = Shop::firstOrCreate(['name' => 'Wines Shop']);
 
-        // 3. Seed Fish Products
+        // 3a. Seed Fish Products
         $products = [
             ['name' => 'Salmon', 'image' => 'salmon.png', 'price_type' => 'Weight', 'price' => 6900],
             ['name' => 'Tuna', 'image' => 'satunalmon.png', 'price_type' => 'Weight', 'price' => 6900],
@@ -46,13 +46,55 @@ class RealDataSeeder extends Seeder
                     'price' => $p['price'],
                     'price_type' => ''.$p['price_type'],
                     'image_path' => ''.$p['image'],
+                    'shop_id' => $meatShop->id,
+                    'category_id' => $meatCategory->id,
+                    'available' => true,
+                ]
+            );
+        }
+
+        // 3a. Seed Meat Products
+        $products = [
+            ['name' => 'Beer 6 Pack', 'image' => 'sirloin.png', 'price_type' => 'Weight', 'price' => 12900],
+            ['name' => 'Red Wine', 'image' => 'antricote.png', 'price_type' => 'Weight', 'price' => 16900],
+            ['name' => 'White Wine', 'image' => 'fillet.png', 'price_type' => 'Weight', 'price' => 22900],
+
+        ];
+
+        foreach ($products as $p) {
+            Product::firstOrCreate(
+                ['slug' => Str::slug($p['name'])],
+                [
+                    'name' => $p['name'],
+                    'price' => $p['price'],
+                    'price_type' => ''.$p['price_type'],
+                    'image_path' => ''.$p['image'],
+                    'shop_id' => $winesShop->id,
+                    'category_id' => $winesCategory->id,
+                    'available' => true,
+                ]
+            );
+        }
+
+        // 3a. Seed Meat Products
+        $products = [
+            ['name' => 'Sirloin', 'image' => 'sirloin.png', 'price_type' => 'Weight', 'price' => 12900],
+        ];
+
+        foreach ($products as $p) {
+            Product::firstOrCreate(
+                ['slug' => Str::slug($p['name'])],
+                [
+                    'name' => $p['name'],
+                    'price' => $p['price'],
+                    'price_type' => ''.$p['price_type'],
+                    'image_path' => ''.$p['image'],
                     'shop_id' => $fishShop->id,
                     'category_id' => $fishCategory->id,
                     'available' => true,
                 ]
             );
         }
-
         // 4. Seed Geo Data (Cities, Streets, Towers)
         $israeliCities = [
             'Tel-Aviv' => '5000',

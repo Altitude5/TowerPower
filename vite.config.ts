@@ -24,7 +24,10 @@ export default defineConfig({
             formVariants: true,
         }),
     ],
-        test: {
+    test: {
+        api: {
+            port: 3001, // Use an unreserved port like 3001 or 5432
+        },
         environment: 'jsdom',
         globals: true,
     },
