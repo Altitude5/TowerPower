@@ -3,6 +3,7 @@
 use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Product;
+use App\Models\Tower;
 use App\Models\User;
 use App\Services\CartService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -98,9 +99,21 @@ it('calculates total price correctly for weight items', function () {
     expect($cartItem->totalPrice())->toBe(1500); // 1000 * 1.5
 });
 
+it('calculates total price correctly for volume items', function () {
+    $user = User::factory()->create();
+    $product = Product::factory()->create([
+        'price' => 2000, // 20.00 ILS/Litre
+        'price_type' => 'Volume',
+    ]);
+
+    $cartItem = CartService::addItem($user, $product, ['volume' => 0.75]);
+
+    expect($cartItem->totalPrice())->toBe(1500); // 2000 * 0.75 = 1500
+});
+
 it('persists cart between sessions', function () {
     $user = User::factory()->create();
-    $product = Product::factory()->create();
+    $product = Product::factory()->create(['price_type' => 'Unit']);
 
     CartService::addItem($user, $product, ['quantity' => 5]);
 
@@ -138,6 +151,36 @@ it('decrements quantity and deletes item if it reaches zero', function () {
     expect(CartItem::count())->toBe(0);
 });
 
+it('adds unit, weight, and volume items correctly', function () {
+    $user = User::factory()->create();
+
+    $unitProduct = Product::factory()->create(['price_type' => 'Unit', 'price' => 100]);
+    $weightProduct = Product::factory()->create(['price_type' => 'Weight', 'price' => 200]);
+    $volumeProduct = Product::factory()->create(['price_type' => 'Volume', 'price' => 300]);
+
+    CartService::addItem($user, $unitProduct, ['quantity' => 1]);
+    CartService::addItem($user, $weightProduct, ['weight' => 0.5]);
+    CartService::addItem($user, $volumeProduct, ['volume' => 0.25]);
+
+    $cart = CartService::getCart($user);
+    expect($cart->items)->toHaveCount(3);
+
+    $unitItem = $cart->items()->where('product_id', $unitProduct->id)->first();
+    expect($unitItem->quantity)->toBe('1.000');
+    expect($unitItem->weight)->toBeNull();
+    expect($unitItem->volume)->toBeNull();
+
+    $weightItem = $cart->items()->where('product_id', $weightProduct->id)->first();
+    expect($weightItem->weight)->toBe('0.500');
+    expect($weightItem->quantity)->toBeNull();
+    expect($weightItem->volume)->toBeNull();
+
+    $volumeItem = $cart->items()->where('product_id', $volumeProduct->id)->first();
+    expect($volumeItem->volume)->toBe('0.250');
+    expect($volumeItem->quantity)->toBeNull();
+    expect($volumeItem->weight)->toBeNull();
+});
+
 it('throws an exception if more than one of quantity, weight, or volume is provided', function () {
     $user = User::factory()->create();
     $product = Product::factory()->create();
@@ -148,9 +191,65 @@ it('throws an exception if more than one of quantity, weight, or volume is provi
     ]);
 })->throws(InvalidArgumentException::class, 'A cart item must have exactly one of: quantity, weight, or volume.');
 
-it('throws an exception if none of quantity, weight, or volume is provided', function () {
-    $user = User::factory()->create();
-    $product = Product::factory()->create();
+it('uses default increments when amount is not provided', function () {
+    $user = User::factory()->create([
+        'name' => 'Test User',
+    ]);
+    // Assuming the user has a default tower or we handle it
+    $tower = Tower::factory()->create();
+    $user->towers()->attach($tower, [
+        'is_default' => true,
+        'apartment_number' => '123',
+        'floor' => 1,
+    ]);
 
-    CartService::addItem($user, $product, []);
-})->throws(InvalidArgumentException::class, 'A cart item must have exactly one of: quantity, weight, or volume.');
+    $unitProduct = Product::factory()->create(['price_type' => 'Unit']);
+    $weightProduct = Product::factory()->create(['price_type' => 'Weight']);
+    $volumeProduct = Product::factory()->create(['price_type' => 'Volume']);
+
+    // Add Unit item - should default to 1
+    CartService::addItem($user, $unitProduct, []);
+    $cart = CartService::getCart($user);
+    expect($cart->items()->where('product_id', $unitProduct->id)->first()->quantity)->toBe('1.000');
+
+    // Add Weight item - should default to 0.5
+    CartService::addItem($user, $weightProduct, []);
+    expect($cart->items()->where('product_id', $weightProduct->id)->first()->weight)->toBe('0.500');
+
+    // Add Volume item - should default to 0.5
+    CartService::addItem($user, $volumeProduct, []);
+    expect($cart->items()->where('product_id', $volumeProduct->id)->first()->volume)->toBe('0.500');
+
+    // Increment existing Unit item - should add 1
+    CartService::addItem($user, $unitProduct, []);
+    expect($cart->items()->where('product_id', $unitProduct->id)->first()->quantity)->toBe('2.000');
+
+    // Increment existing Weight item - should add 0.25
+    CartService::addItem($user, $weightProduct, []);
+    expect($cart->items()->where('product_id', $weightProduct->id)->first()->weight)->toBe('0.750');
+
+    // Increment existing Volume item - should add 0.25
+    CartService::addItem($user, $volumeProduct, []);
+    expect($cart->items()->where('product_id', $volumeProduct->id)->first()->volume)->toBe('0.750');
+});
+
+it('uses default increments when amount is provided as null', function () {
+    $user = User::factory()->create();
+    $tower = Tower::factory()->create();
+    $user->towers()->attach($tower, [
+        'is_default' => true,
+        'apartment_number' => '123',
+        'floor' => 1,
+    ]);
+
+    $unitProduct = Product::factory()->create(['price_type' => 'Unit']);
+
+    // Pass null explicitly - simulating empty form field
+    CartService::addItem($user, $unitProduct, ['quantity' => null]);
+
+    $cart = CartService::getCart($user);
+    $item = $cart->items()->where('product_id', $unitProduct->id)->first();
+
+    expect($item->quantity)->not->toBeNull()
+        ->and($item->quantity)->toBe('1.000');
+});

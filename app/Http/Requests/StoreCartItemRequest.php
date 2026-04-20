@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreCartItemRequest extends FormRequest
@@ -17,24 +18,15 @@ class StoreCartItemRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
-        $rules = [
+        return [
             'quantity' => 'nullable|numeric',
             'weight' => 'nullable|numeric',
             'volume' => 'nullable|numeric',
             'absolute' => 'nullable|boolean',
         ];
-
-        // If not an absolute update, enforce that at least one of the unit fields is present.
-        if (! $this->boolean('absolute')) {
-            $rules['quantity'] .= '|required_without_all:weight,volume';
-            $rules['weight'] .= '|required_without_all:quantity,volume';
-            $rules['volume'] .= '|required_without_all:quantity,weight';
-        }
-
-        return $rules;
     }
 }

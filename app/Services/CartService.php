@@ -32,11 +32,10 @@ class CartService
     {
         $isAbsolute = $data['absolute'] ?? false;
 
-        // Relax validation: only check for required fields if it's NOT an absolute update,
-        // or if we are not attempting to set the value to 0.
+        // Validation: If amount is provided, ensure only one is present.
         if (! $isAbsolute) {
-            $provided = collect($data)->only(['quantity', 'weight', 'volume'])->filter()->count();
-            if ($provided !== 1) {
+            $providedKeys = collect($data)->only(['quantity', 'weight', 'volume'])->filter(fn ($v) => ! is_null($v))->keys();
+            if ($providedKeys->count() > 1) {
                 throw new \InvalidArgumentException('A cart item must have exactly one of: quantity, weight, or volume.');
             }
         }
@@ -60,24 +59,19 @@ class CartService
                 ->first();
 
             if ($existingItem) {
-                $isAbsolute = $data['absolute'] ?? false;
-
                 $newQuantity = null;
                 $newWeight = null;
                 $newVolume = null;
 
                 if ($product->price_type === 'Unit') {
-                    $newQuantity = $isAbsolute
-                        ? (array_key_exists('quantity', $data) ? $data['quantity'] : $existingItem->quantity)
-                        : bcadd($existingItem->quantity ?? '0', (string) ($data['quantity'] ?? '0'), 3);
+                    $increment = isset($data['quantity']) ? (string) $data['quantity'] : '1';
+                    $newQuantity = $isAbsolute ? $increment : bcadd($existingItem->quantity ?? '0', $increment, 3);
                 } elseif ($product->price_type === 'Weight') {
-                    $newWeight = $isAbsolute
-                        ? (array_key_exists('weight', $data) ? $data['weight'] : $existingItem->weight)
-                        : bcadd($existingItem->weight ?? '0', (string) ($data['weight'] ?? '0'), 3);
+                    $increment = isset($data['weight']) ? (string) $data['weight'] : '0.25';
+                    $newWeight = $isAbsolute ? $increment : bcadd($existingItem->weight ?? '0', $increment, 3);
                 } elseif ($product->price_type === 'Volume') {
-                    $newVolume = $isAbsolute
-                        ? (array_key_exists('volume', $data) ? $data['volume'] : $existingItem->volume)
-                        : bcadd($existingItem->volume ?? '0', (string) ($data['volume'] ?? '0'), 3);
+                    $increment = isset($data['volume']) ? (string) $data['volume'] : '0.25';
+                    $newVolume = $isAbsolute ? $increment : bcadd($existingItem->volume ?? '0', $increment, 3);
                 }
 
                 // Check for deletion
@@ -110,14 +104,27 @@ class CartService
                 return $existingItem;
             }
 
+            // Creating new item
+            $quantity = null;
+            $weight = null;
+            $volume = null;
+
+            if ($product->price_type === 'Unit') {
+                $quantity = isset($data['quantity']) ? $data['quantity'] : 1;
+            } elseif ($product->price_type === 'Weight') {
+                $weight = isset($data['weight']) ? $data['weight'] : 0.5;
+            } elseif ($product->price_type === 'Volume') {
+                $volume = isset($data['volume']) ? $data['volume'] : 0.5;
+            }
+
             return $cart->items()->create([
                 'product_id' => $product->id,
                 'product_name' => $product->name,
                 'price' => $product->price,
                 'price_type' => $product->price_type,
-                'quantity' => $data['quantity'] ?? null,
-                'weight' => $data['weight'] ?? null,
-                'volume' => $data['volume'] ?? null,
+                'quantity' => $quantity,
+                'weight' => $weight,
+                'volume' => $volume,
             ]);
         });
     }
