@@ -27,7 +27,7 @@ class OrderService
                 ->lockForUpdate()
                 ->first();
 
-            if (!$cart || $cart->items()->count() === 0) {
+            if (! $cart || $cart->items()->count() === 0) {
                 throw new \RuntimeException('Cart is empty.');
             }
 
@@ -43,7 +43,7 @@ class OrderService
             ]);
 
             // Group items by shop_id
-            $itemsByShop = $cart->items->groupBy(fn($item) => $item->product->shop_id);
+            $itemsByShop = $cart->items->groupBy(fn ($item) => $item->product->shop_id);
 
             foreach ($itemsByShop as $shopId => $cartItems) {
                 // Create SubOrder
@@ -58,7 +58,7 @@ class OrderService
                         ->lockForUpdate()
                         ->first();
 
-                    if (!$product->available()) {
+                    if (! $product->available()) {
                         throw new \RuntimeException("Product {$product->name} is not available.");
                     }
 

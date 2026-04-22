@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\SubOrderStatus;
+use App\Filament\Resources\SubOrders\Pages\EditSubOrder;
 use App\Filament\Resources\SubOrders\Pages\ListSubOrders;
 use App\Filament\Resources\SubOrders\SubOrderResource;
 use App\Models\Order;
@@ -56,7 +57,7 @@ it('allows super user to edit sub-order status', function () {
 
     $this->actingAs($super);
 
-    Livewire::test(App\Filament\Resources\SubOrders\Pages\EditSubOrder::class, ['record' => $subOrder->id])
+    Livewire::test(EditSubOrder::class, ['record' => $subOrder->id])
         ->set('data.status', SubOrderStatus::Processing->value)
         ->call('save')
         ->assertHasNoFormErrors();

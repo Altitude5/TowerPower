@@ -37,7 +37,7 @@ const user = computed(() => page.props.auth.user);
         <Head title="Profile settings" />
 
         <h1 class="sr-only">Profile settings</h1>
-
+{{  user  }}
         <SettingsLayout>
             <div class="flex flex-col space-y-6">
                 <Heading

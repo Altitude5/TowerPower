@@ -1,5 +1,6 @@
 <?php
 
+use App\Filament\Resources\Transactions\Pages\ListTransactions;
 use App\Filament\Resources\Transactions\TransactionResource;
 use App\Models\Role;
 use App\Models\Transaction;
@@ -41,7 +42,7 @@ it('does not allow editing transactions', function () {
     $this->actingAs($super);
 
     // Edit action should not even exist
-    Livewire::test(App\Filament\Resources\Transactions\Pages\ListTransactions::class)
+    Livewire::test(ListTransactions::class)
         ->assertTableActionDoesNotExist('edit', null, $transaction);
 });
 
@@ -54,6 +55,6 @@ it('does not allow deleting transactions', function () {
     $this->actingAs($super);
 
     // Delete action should not even exist
-    Livewire::test(App\Filament\Resources\Transactions\Pages\ListTransactions::class)
+    Livewire::test(ListTransactions::class)
         ->assertTableActionDoesNotExist('delete', null, $transaction);
 });

@@ -2,13 +2,12 @@
 
 namespace App\Models;
 
+use App\Enums\OrderStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
-use App\Enums\OrderStatus;
-use App\Enums\SubOrderStatus;
 
 class Order extends Model
 {
@@ -58,12 +57,12 @@ class Order extends Model
 
     public function totalPrice(): int
     {
-        return $this->subOrders->sum(fn(SubOrder $so) => $so->totalPrice());
+        return $this->subOrders->sum(fn (SubOrder $so) => $so->totalPrice());
     }
 
     public function totalQuantity(): int
     {
-        return $this->subOrders->sum(fn(SubOrder $so) => $so->totalQuantity());
+        return $this->subOrders->sum(fn (SubOrder $so) => $so->totalQuantity());
     }
 
     public function totalDiscount(): int

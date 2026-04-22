@@ -5,13 +5,16 @@ namespace App\Filament\Resources\Streets;
 use App\Filament\Resources\Streets\Pages\CreateStreet;
 use App\Filament\Resources\Streets\Pages\EditStreet;
 use App\Filament\Resources\Streets\Pages\ListStreets;
+use App\Filament\Resources\Streets\Pages\ViewStreet;
 use App\Filament\Resources\Streets\Schemas\StreetForm;
-use App\Filament\Resources\Streets\Tables\StreetsTable;
 use App\Models\Street;
 use BackedEnum;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
 class StreetResource extends Resource
@@ -29,22 +32,22 @@ class StreetResource extends Resource
     {
         return $table
             ->columns([
-                \Filament\Tables\Columns\TextColumn::make('name'),
-                \Filament\Tables\Columns\TextColumn::make('city.name')->label('City'),
+                TextColumn::make('name'),
+                TextColumn::make('city.name')->label('City'),
             ])
             ->defaultPaginationPageOption(25)
             ->paginationPageOptions([25, 50, 100]);
     }
 
-    public static function infolist(\Filament\Schemas\Schema $schema): \Filament\Schemas\Schema
+    public static function infolist(Schema $schema): Schema
     {
         return $schema->schema([
-            \Filament\Infolists\Components\Section::make('Details')->schema([
-                \Filament\Infolists\Components\TextEntry::make('id')->label('ID'),
-                \Filament\Infolists\Components\TextEntry::make('name'),
-                \Filament\Infolists\Components\TextEntry::make('city.name')->label('City'),
-                \Filament\Infolists\Components\TextEntry::make('created_at')->dateTime(),
-                \Filament\Infolists\Components\TextEntry::make('updated_at')->dateTime(),
+            Section::make('Details')->schema([
+                TextEntry::make('id')->label('ID'),
+                TextEntry::make('name'),
+                TextEntry::make('city.name')->label('City'),
+                TextEntry::make('created_at')->dateTime(),
+                TextEntry::make('updated_at')->dateTime(),
             ]),
         ]);
     }
@@ -54,7 +57,7 @@ class StreetResource extends Resource
         return [
             'index' => ListStreets::route('/'),
             'create' => CreateStreet::route('/create'),
-            'view' => \App\Filament\Resources\Streets\Pages\ViewStreet::route('/{record}'),
+            'view' => ViewStreet::route('/{record}'),
             'edit' => EditStreet::route('/{record}/edit'),
         ];
     }

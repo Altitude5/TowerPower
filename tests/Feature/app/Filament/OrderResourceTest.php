@@ -2,6 +2,7 @@
 
 use App\Enums\OrderStatus;
 use App\Filament\Resources\Orders\OrderResource;
+use App\Filament\Resources\Orders\Pages\EditOrder;
 use App\Filament\Resources\Orders\Pages\ListOrders;
 use App\Models\Order;
 use App\Models\Role;
@@ -52,7 +53,7 @@ it('allows super user to edit order status', function () {
 
     $this->actingAs($super);
 
-    Livewire::test(App\Filament\Resources\Orders\Pages\EditOrder::class, ['record' => $order->id])
+    Livewire::test(EditOrder::class, ['record' => $order->id])
         ->set('data.status', OrderStatus::Processing->value)
         ->call('save')
         ->assertHasNoFormErrors();

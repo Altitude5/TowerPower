@@ -9,9 +9,13 @@ use App\Filament\Resources\Discounts\Pages\ViewDiscount;
 use App\Filament\Resources\Discounts\Schemas\DiscountForm;
 use App\Models\Discount;
 use BackedEnum;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Actions\ViewAction;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
 class DiscountResource extends Resource
@@ -30,15 +34,15 @@ class DiscountResource extends Resource
         return false;
     }
 
-    public static function infolist(\Filament\Schemas\Schema $schema): \Filament\Schemas\Schema
+    public static function infolist(Schema $schema): Schema
     {
         return $schema->schema([
-            \Filament\Infolists\Components\Section::make('Details')->schema([
-                \Filament\Infolists\Components\TextEntry::make('id')->label('ID'),
-                \Filament\Infolists\Components\TextEntry::make('name'),
-                \Filament\Infolists\Components\TextEntry::make('code'),
-                \Filament\Infolists\Components\TextEntry::make('created_at')->dateTime(),
-                \Filament\Infolists\Components\TextEntry::make('updated_at')->dateTime(),
+            Section::make('Details')->schema([
+                TextEntry::make('id')->label('ID'),
+                TextEntry::make('name'),
+                TextEntry::make('code'),
+                TextEntry::make('created_at')->dateTime(),
+                TextEntry::make('updated_at')->dateTime(),
             ]),
         ]);
     }
@@ -47,13 +51,13 @@ class DiscountResource extends Resource
     {
         return $table
             ->columns([
-                \Filament\Tables\Columns\TextColumn::make('name'),
-                \Filament\Tables\Columns\TextColumn::make('code'),
+                TextColumn::make('name'),
+                TextColumn::make('code'),
             ])
             ->defaultPaginationPageOption(25)
             ->paginationPageOptions([25, 50, 100])
             ->actions([
-                \Filament\Tables\Actions\ViewAction::make(),
+                ViewAction::make(),
             ]);
     }
 

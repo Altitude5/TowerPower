@@ -16,7 +16,7 @@ class UserService
      */
     public static function canHardDelete(User $user): bool
     {
-        if (!$user->trashed()) {
+        if (! $user->trashed()) {
             return false;
         }
 
@@ -30,7 +30,7 @@ class UserService
         ];
 
         foreach ($constraints as $table => $columns) {
-            if (!Schema::hasTable($table)) {
+            if (! Schema::hasTable($table)) {
                 continue;
             }
 

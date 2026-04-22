@@ -53,12 +53,12 @@ class SubOrder extends Model
 
     public function totalPrice(): int
     {
-        return $this->orderItems->sum(fn(OrderItem $oi) => $oi->totalPrice());
+        return $this->orderItems->sum(fn (OrderItem $oi) => $oi->totalPrice());
     }
 
     public function totalQuantity(): int
     {
-        return $this->orderItems->sum(fn(OrderItem $oi) => (int) ($oi->quantity ?? 0));
+        return $this->orderItems->sum(fn (OrderItem $oi) => (int) ($oi->quantity ?? 0));
     }
 
     public function totalDiscount(): int

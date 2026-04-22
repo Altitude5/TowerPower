@@ -43,7 +43,7 @@ test('Staff cannot view other Staff or Super Users', function () {
 
     $otherStaff = User::factory()->create();
     $otherStaff->assignRole(Role::ROLE_STAFF);
-    
+
     $super = User::factory()->create();
     $super->assignRole(Role::ROLE_SUPER_USER);
 

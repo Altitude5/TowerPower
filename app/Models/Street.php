@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\StreetFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -9,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Street extends Model
 {
-    /** @use HasFactory<\Database\Factories\StreetFactory> */
+    /** @use HasFactory<StreetFactory> */
     use HasFactory;
 
     protected $fillable = [

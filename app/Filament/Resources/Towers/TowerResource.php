@@ -5,13 +5,16 @@ namespace App\Filament\Resources\Towers;
 use App\Filament\Resources\Towers\Pages\CreateTower;
 use App\Filament\Resources\Towers\Pages\EditTower;
 use App\Filament\Resources\Towers\Pages\ListTowers;
+use App\Filament\Resources\Towers\Pages\ViewTower;
 use App\Filament\Resources\Towers\Schemas\TowerForm;
-use App\Filament\Resources\Towers\Tables\TowersTable;
 use App\Models\Tower;
 use BackedEnum;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
 class TowerResource extends Resource
@@ -29,8 +32,8 @@ class TowerResource extends Resource
     {
         return $table
             ->columns([
-                \Filament\Tables\Columns\TextColumn::make('name'),
-                \Filament\Tables\Columns\TextColumn::make('full_address')
+                TextColumn::make('name'),
+                TextColumn::make('full_address')
                     ->label('Address')
                     ->state(fn (Tower $record): string => $record->full_address()),
             ])
@@ -45,17 +48,17 @@ class TowerResource extends Resource
         ];
     }
 
-    public static function infolist(\Filament\Schemas\Schema $schema): \Filament\Schemas\Schema
+    public static function infolist(Schema $schema): Schema
     {
         return $schema->schema([
-            \Filament\Infolists\Components\Section::make('Details')->schema([
-                \Filament\Infolists\Components\TextEntry::make('id')->label('ID'),
-                \Filament\Infolists\Components\TextEntry::make('name'),
-                \Filament\Infolists\Components\TextEntry::make('full_address')
+            Section::make('Details')->schema([
+                TextEntry::make('id')->label('ID'),
+                TextEntry::make('name'),
+                TextEntry::make('full_address')
                     ->label('Address')
                     ->state(fn (Tower $record): string => $record->full_address()),
-                \Filament\Infolists\Components\TextEntry::make('created_at')->dateTime(),
-                \Filament\Infolists\Components\TextEntry::make('updated_at')->dateTime(),
+                TextEntry::make('created_at')->dateTime(),
+                TextEntry::make('updated_at')->dateTime(),
             ]),
         ]);
     }
@@ -65,7 +68,7 @@ class TowerResource extends Resource
         return [
             'index' => ListTowers::route('/'),
             'create' => CreateTower::route('/create'),
-            'view' => \App\Filament\Resources\Towers\Pages\ViewTower::route('/{record}'),
+            'view' => ViewTower::route('/{record}'),
             'edit' => EditTower::route('/{record}/edit'),
         ];
     }

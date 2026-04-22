@@ -15,7 +15,7 @@ test('can search for tower and see confirmation UI', function () {
 
     // Initial state: components are rendered
     $page = $this->get('/register');
-    
+
     // Simulate user flow via API calls
     $this->get(route('geo.streets', ['city' => $city->id]))
         ->assertStatus(200)
@@ -25,7 +25,7 @@ test('can search for tower and see confirmation UI', function () {
         ->assertStatus(200)
         ->assertJson([
             'found' => true,
-            'tower' => ['id' => $tower->id, 'name' => 'Test Tower']
+            'tower' => ['id' => $tower->id, 'name' => 'Test Tower'],
         ]);
 });
 

@@ -63,7 +63,7 @@ class OrderItem extends Model
 
     public function totalPrice(): int
     {
-        $multiplier = "0";
+        $multiplier = '0';
 
         if ($this->quantity !== null) {
             $multiplier = (string) $this->quantity;

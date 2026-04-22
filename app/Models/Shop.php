@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Collection;
 
 class Shop extends Model
 {
@@ -32,6 +33,10 @@ class Shop extends Model
                 throw new \Exception('Cannot delete shop because it has an owner.');
             }
 
+            if ($shop->categoryCityAssignments()->exists()) {
+                throw new \Exception('Cannot delete shop because it has category-city assignments.');
+            }
+
             // SubOrder check (Unit 5 integration)
             if (class_exists(SubOrder::class) && method_exists($shop, 'subOrders') && $shop->subOrders()->exists()) {
                 throw new \Exception('Cannot delete shop because it has sub-orders.');
@@ -53,6 +58,22 @@ class Shop extends Model
     public function products(): HasMany
     {
         return $this->hasMany(Product::class);
+    }
+
+    /**
+     * Get the category city assignments for the shop.
+     */
+    public function categoryCityAssignments(): HasMany
+    {
+        return $this->hasMany(CategoryCityAssignment::class);
+    }
+
+    /**
+     * Get all CategoryCityAssignment records for this shop, eager-loading category and city.
+     */
+    public function assignedCategories(): Collection
+    {
+        return $this->categoryCityAssignments()->with('category', 'city')->get();
     }
 
     /**

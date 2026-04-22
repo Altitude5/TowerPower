@@ -24,6 +24,10 @@ class ShopService
             throw new Exception('Cannot delete shop because it has an owner.');
         }
 
+        if ($shop->categoryCityAssignments()->exists()) {
+            throw new Exception('Cannot delete shop because it has category-city assignments.');
+        }
+
         if (class_exists(SubOrder::class) && method_exists($shop, 'subOrders') && $shop->subOrders()->exists()) {
             throw new Exception('Cannot delete shop because it has sub-orders.');
         }

@@ -8,17 +8,17 @@ use App\Filament\Resources\Shops\Pages\ListShops;
 use App\Filament\Resources\Shops\Pages\ViewShop;
 use App\Filament\Resources\Shops\Schemas\ShopForm;
 use App\Filament\Resources\Shops\Schemas\ShopInfolist;
-use App\Filament\Resources\Shops\Tables\ShopsTable;
 use App\Models\Shop;
 use BackedEnum;
-use Filament\Actions\ViewAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\DeleteAction;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -43,8 +43,8 @@ class ShopResource extends Resource
     {
         return $table
             ->columns([
-                \Filament\Tables\Columns\TextColumn::make('name')->searchable(),
-                \Filament\Tables\Columns\TextColumn::make('owner.name')->label('Owner'),
+                TextColumn::make('name')->searchable(),
+                TextColumn::make('owner.name')->label('Owner'),
             ])
             ->defaultPaginationPageOption(25)
             ->paginationPageOptions([25, 50, 100])
@@ -63,7 +63,7 @@ class ShopResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\CategoryCityAssignmentsRelationManager::class,
         ];
     }
 

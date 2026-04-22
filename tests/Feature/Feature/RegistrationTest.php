@@ -3,7 +3,6 @@
 use App\Models\City;
 use App\Models\Street;
 use App\Models\Tower;
-use Illuminate\Support\Facades\Http;
 
 test('registration page loads', function () {
     $this->get('/register')->assertStatus(200);

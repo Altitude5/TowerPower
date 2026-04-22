@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\Role;
 use App\Models\User;
 use Database\Seeders\DevUserSeeder;
 use Database\Seeders\RoleSeeder;
@@ -11,7 +10,7 @@ uses(RefreshDatabase::class);
 test('DevUserSeeder creates all standard dev users in local environment', function () {
     // We need roles first
     $this->seed(RoleSeeder::class);
-    
+
     // The seeder now allows 'testing' environment for tests to pass
     $this->seed(DevUserSeeder::class);
 
@@ -38,10 +37,10 @@ test('DevUserSeeder creates all standard dev users in local environment', functi
 
 test('DevUserSeeder does not create users in production environment', function () {
     $this->seed(RoleSeeder::class);
-    
+
     config(['app.env' => 'production']);
 
     $this->seed(DevUserSeeder::class, ['--force' => true]);
 
-    expect(\App\Models\User::count())->toBe(0);
+    expect(User::count())->toBe(0);
 });

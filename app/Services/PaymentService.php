@@ -10,8 +10,8 @@ class PaymentService
 {
     /**
      * Handle payment gateway callback/webhook.
-     * 
-     * @param array{gateway: string, ref: string, order_id: int} $payload
+     *
+     * @param  array{gateway: string, ref: string, order_id: int}  $payload
      */
     public static function handleGatewayCallback(array $payload): Transaction
     {

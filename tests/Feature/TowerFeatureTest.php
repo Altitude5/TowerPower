@@ -1,10 +1,8 @@
 <?php
 
-use App\Models\City;
-use App\Models\Street;
+use App\Models\Role;
 use App\Models\Tower;
 use App\Models\User;
-use App\Models\Role;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -17,10 +15,10 @@ beforeEach(function () {
 
 it('allows super user to view all towers', function () {
     Tower::factory()->count(3)->create();
-    
+
     $this->actingAs($this->superUser)
-         ->get('/admin/towers')
-         ->assertStatus(200);
+        ->get('/admin/towers')
+        ->assertStatus(200);
 });
 
 it('does not allow unauthorized access to tower creation', function () {
@@ -29,6 +27,6 @@ it('does not allow unauthorized access to tower creation', function () {
     $customer->assignRole($role);
 
     $this->actingAs($customer)
-         ->get('/admin/towers/create')
-         ->assertStatus(403);
+        ->get('/admin/towers/create')
+        ->assertStatus(403);
 });

@@ -36,7 +36,7 @@ test('it returns false if user is soft-deleted but has roles assigned', function
 test('it returns false if user is soft-deleted but assigned a role to someone else', function () {
     $admin = User::factory()->create();
     $customer = User::factory()->create();
-    
+
     $customer->assignRole(Role::ROLE_CUSTOMER, $admin); // admin assigned role
     $admin->delete();
 

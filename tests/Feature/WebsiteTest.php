@@ -47,7 +47,7 @@ test('authenticated user can access product page', function () {
     $product = Product::factory()->create([
         'category_id' => $category->id,
         'slug' => 'test-product',
-        'available' => true
+        'available' => true,
     ]);
 
     $this->actingAs($this->user)

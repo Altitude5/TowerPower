@@ -1,9 +1,9 @@
 <?php
 
-use Laravel\Fortify\Features;
 use App\Models\City;
 use App\Models\Street;
 use App\Models\Tower;
+use Laravel\Fortify\Features;
 
 beforeEach(function () {
     $this->skipUnlessFortifyFeature(Features::registration());

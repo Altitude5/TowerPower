@@ -22,7 +22,7 @@ test('it creates a super user successfully', function () {
     $user = User::where('email', 'super@example.com')->first();
     expect($user)->not->toBeNull()
         ->and($user->isSuperUser())->toBeTrue();
-    
+
     // Check assigned_by is null
     $pivot = $user->roles()->where('slug', Role::ROLE_SUPER_USER)->first()->pivot;
     expect($pivot->assigned_by)->toBeNull();
