@@ -23,11 +23,25 @@ class CartController extends Controller
     public function index(): Response
     {
         $cart = CartService::getCart(auth()->user());
-        $cart->load('items.product');
+        $cart->load(['items.product.shop', 'items.product.category']);
+
+        $groupedItems = $cart->items->groupBy(function ($item) {
+            return $item->product->shop_id.'-'.($item->category_name ?? $item->product->category?->name ?? 'General');
+        })->map(function ($items) {
+            $firstItem = $items->first();
+
+            return [
+                'shop_id' => $firstItem->product->shop_id,
+                'shop_name' => $firstItem->shop_name ?? $firstItem->product->shop->name,
+                'category_name' => $firstItem->category_name ?? $firstItem->product->category?->name ?? 'General',
+                'items' => $items,
+            ];
+        })->values();
 
         return Inertia::render('Cart/Index', [
             'cart' => $cart,
-            'items' => $cart->items,
+            'groupedItems' => $groupedItems,
+            'items' => $cart->items, // Keep for compatibility if needed, but we'll use groupedItems
         ]);
     }
 }

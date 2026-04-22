@@ -10,12 +10,21 @@ interface CartItem {
     weight: number | null;
     volume: number | null;
     price_type: 'Unit' | 'Weight' | 'Volume';
+    category_name: string | null;
+    shop_name: string | null;
     product: {
         id: number;
         name: string;
         price: number;
         image_path: string | null;
     }
+}
+
+interface GroupedItems {
+    shop_id: number;
+    shop_name: string;
+    category_name: string;
+    items: CartItem[];
 }
 
 interface Cart {
@@ -26,6 +35,7 @@ interface Cart {
 const props = defineProps<{
     cart: Cart;
     items: CartItem[];
+    groupedItems: GroupedItems[];
 }>();
 
 const total = computed(() => {
@@ -36,7 +46,8 @@ const total = computed(() => {
         else if (item.price_type === 'Volume') val = item.volume;
 
         const numVal = typeof val === 'string' ? parseFloat(val) : (val ?? 0);
-        return acc + (item.product.price * numVal);
+        const price = item.product?.price ?? 0;
+        return acc + (price * numVal);
     }, 0);
 });
 
@@ -62,28 +73,37 @@ const checkout = () => {
 
             <div v-if="items.length > 0" class="flex flex-col lg:flex-row gap-8">
                 <!-- Items Table -->
-                <div class="flex-1 space-y-4">
-                    <div 
-                        v-for="item in items" 
-                        :key="item.id"
-                        class="bg-white p-4 rounded-lg shadow-sm border border-slate-100 flex items-center gap-4 group"
-                    >
-                        <div class="w-20 h-20 bg-slate-50 rounded-md overflow-hidden border border-slate-100 flex-shrink-0">
-                            <img v-if="item.product.image_path" :src="`/storage/${item.product.image_path}`" class="w-full h-full object-cover" />
-                            <div v-else class="flex items-center justify-center h-full text-[10px] text-slate-400 font-bold uppercase">No Image</div>
-                        </div>
-                        <div class="flex-1">
-                            <h3 class="font-semibold text-slate-800">{{ item.product.name }}</h3>
-                            <p class="text-slate-500 text-sm">
-                                {{ item.price_type }}: 
-                                {{ getItemMultiplier(item) }} 
-                                × {{ formatPrice(item.product.price) }}
-                            </p>
-                        </div>
-                        <div class="text-right">
-                            <p class="font-bold text-slate-900">
-                                {{ formatPrice(item.product.price * getItemMultiplier(item)) }}
-                            </p>
+                <div class="flex-1 space-y-8">
+                    <div v-for="group in groupedItems" :key="`${group.shop_id}-${group.category_name}`" class="space-y-4">
+                        <h2 class="text-xl font-bold text-slate-800 border-b border-slate-200 pb-2">
+                            {{ group.category_name }}
+                        </h2>
+                        
+                        <div class="space-y-4">
+                            <div 
+                                v-for="item in group.items" 
+                                :key="item.id"
+                                class="bg-white p-4 rounded-lg shadow-sm border border-slate-100 flex items-center gap-4 group"
+                            >
+                                <div class="w-20 h-20 bg-slate-50 rounded-md overflow-hidden border border-slate-100 flex-shrink-0">
+                                    <img v-if="item.product.image_path" :src="`/storage/${item.product.image_path}`" class="w-full h-full object-cover" />
+                                    <div v-else class="flex items-center justify-center h-full text-[10px] text-slate-400 font-bold uppercase">No Image</div>
+                                </div>
+                                <div class="flex-1">
+                                    <h3 class="font-semibold text-slate-800">{{ item.product.name }}</h3>
+                                    <p class="text-slate-500 text-sm">
+                                        {{ item.price_type }}: 
+                                        {{ getItemMultiplier(item) }} 
+                                        × {{ formatPrice(item.product.price) }}
+                                    </p>
+                                    <p class="text-[10px] text-slate-400 uppercase font-medium mt-1">Sold by: {{ group.shop_name }}</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="font-bold text-slate-900">
+                                        {{ formatPrice(item.product.price * getItemMultiplier(item)) }}
+                                    </p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

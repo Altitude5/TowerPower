@@ -99,6 +99,8 @@ class CartService
                     'price' => $product->price,
                     'price_type' => $product->price_type,
                     'product_name' => $product->name,
+                    'category_name' => $product->category?->name,
+                    'shop_name' => $product->shop->name,
                 ]);
 
                 return $existingItem;
@@ -120,6 +122,8 @@ class CartService
             return $cart->items()->create([
                 'product_id' => $product->id,
                 'product_name' => $product->name,
+                'category_name' => $product->category?->name,
+                'shop_name' => $product->shop->name,
                 'price' => $product->price,
                 'price_type' => $product->price_type,
                 'quantity' => $quantity,

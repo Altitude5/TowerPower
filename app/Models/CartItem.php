@@ -21,6 +21,8 @@ class CartItem extends Model
         'price',
         'price_type',
         'product_name',
+        'category_name',
+        'shop_name',
     ];
 
     /**

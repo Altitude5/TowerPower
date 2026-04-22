@@ -2,7 +2,9 @@
 
 use App\Models\Cart;
 use App\Models\CartItem;
+use App\Models\Category;
 use App\Models\Product;
+use App\Models\Shop;
 use App\Models\Tower;
 use App\Models\User;
 use App\Services\CartService;
@@ -22,15 +24,21 @@ it('creates a cart for a user', function () {
 
 it('snapshots product data when adding to cart', function () {
     $user = User::factory()->create();
+    $shop = Shop::factory()->create(['name' => 'Original Shop']);
+    $category = Category::factory()->create(['name' => 'Original Category']);
     $product = Product::factory()->create([
         'name' => 'Original Name',
         'price' => 1000,
         'price_type' => 'Unit',
+        'shop_id' => $shop->id,
+        'category_id' => $category->id,
     ]);
 
     $cartItem = CartService::addItem($user, $product, ['quantity' => 2]);
 
     expect($cartItem->product_name)->toBe('Original Name');
+    expect($cartItem->category_name)->toBe('Original Category');
+    expect($cartItem->shop_name)->toBe('Original Shop');
     expect($cartItem->price)->toBe(1000);
     expect($cartItem->price_type)->toBe('Unit');
     expect($cartItem->quantity)->toBe('2.000');
@@ -40,10 +48,14 @@ it('snapshots product data when adding to cart', function () {
         'name' => 'New Name',
         'price' => 2000,
     ]);
+    $shop->update(['name' => 'New Shop']);
+    $category->update(['name' => 'New Category']);
 
     // Cart item should remain unchanged
     $cartItem->refresh();
     expect($cartItem->product_name)->toBe('Original Name');
+    expect($cartItem->category_name)->toBe('Original Category');
+    expect($cartItem->shop_name)->toBe('Original Shop');
     expect($cartItem->price)->toBe(1000);
 });
 
@@ -252,4 +264,30 @@ it('uses default increments when amount is provided as null', function () {
 
     expect($item->quantity)->not->toBeNull()
         ->and($item->quantity)->toBe('1.000');
+});
+
+it('returns grouped items in the cart index', function () {
+    $user = User::factory()->create();
+    $tower = Tower::factory()->create();
+    $user->towers()->attach($tower, ['is_default' => true, 'apartment_number' => '1', 'floor' => 1]);
+
+    $shop1 = Shop::factory()->create(['name' => 'Shop 1']);
+    $shop2 = Shop::factory()->create(['name' => 'Shop 2']);
+
+    $category1 = Category::factory()->create(['name' => 'Category 1']);
+    $category2 = Category::factory()->create(['name' => 'Category 2']);
+
+    $product1 = Product::factory()->create(['shop_id' => $shop1->id, 'category_id' => $category1->id, 'price_type' => 'Unit']);
+    $product2 = Product::factory()->create(['shop_id' => $shop2->id, 'category_id' => $category2->id, 'price_type' => 'Unit']);
+
+    CartService::addItem($user, $product1, ['quantity' => 1]);
+    CartService::addItem($user, $product2, ['quantity' => 1]);
+
+    $this->actingAs($user)
+        ->get(route('cart.index'))
+        ->assertInertia(fn ($page) => $page
+            ->has('groupedItems', 2)
+            ->where('groupedItems.0.category_name', 'Category 1')
+            ->where('groupedItems.1.category_name', 'Category 2')
+        );
 });
