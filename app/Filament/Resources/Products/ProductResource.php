@@ -8,18 +8,18 @@ use App\Filament\Resources\Products\Pages\ListProducts;
 use App\Filament\Resources\Products\Pages\ViewProduct;
 use App\Filament\Resources\Products\Schemas\ProductForm;
 use App\Filament\Resources\Products\Schemas\ProductInfolist;
-use App\Filament\Resources\Products\Tables\ProductsTable;
 use App\Models\Product;
 use BackedEnum;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Filament\Actions\ViewAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
@@ -43,9 +43,9 @@ class ProductResource extends Resource
     {
         return $table
             ->columns([
-                \Filament\Tables\Columns\TextColumn::make('name')->searchable(),
-                \Filament\Tables\Columns\TextColumn::make('shop.name')->label('Shop'),
-                \Filament\Tables\Columns\TextColumn::make('price')->money('ILS'),
+                TextColumn::make('name')->searchable(),
+                TextColumn::make('shop.name')->label('Shop'),
+                TextColumn::make('price')->money('ILS'),
             ])
             ->defaultPaginationPageOption(25)
             ->paginationPageOptions([25, 50, 100])
@@ -64,7 +64,7 @@ class ProductResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\RatingsRelationManager::class,
         ];
     }
 

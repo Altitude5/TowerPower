@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
 
@@ -25,6 +26,8 @@ class Shop extends Model
     protected static function booted(): void
     {
         static::deleting(function (Shop $shop) {
+            $shop->ratings()->delete();
+
             if ($shop->products()->exists()) {
                 throw new \Exception('Cannot delete shop because it has products.');
             }
@@ -66,6 +69,11 @@ class Shop extends Model
     public function categoryCityAssignments(): HasMany
     {
         return $this->hasMany(CategoryCityAssignment::class);
+    }
+
+    public function ratings(): MorphMany
+    {
+        return $this->morphMany(Rating::class, 'ratable');
     }
 
     /**
@@ -112,5 +120,15 @@ class Shop extends Model
     public function minimumOrder(): ?int
     {
         return $this->minimum_order;
+    }
+
+    public function averageScore(): ?float
+    {
+        return $this->ratings()->avg('score');
+    }
+
+    public function userRating(User $user): ?Rating
+    {
+        return $this->ratings()->where('user_id', $user->id)->first();
     }
 }

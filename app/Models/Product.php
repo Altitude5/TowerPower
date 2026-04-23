@@ -6,12 +6,20 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 
 class Product extends Model
 {
     use HasFactory, SoftDeletes;
+
+    protected static function booted(): void
+    {
+        static::deleting(function (Product $product) {
+            $product->ratings()->delete();
+        });
+    }
 
     protected $fillable = [
         'name',
@@ -59,7 +67,22 @@ class Product extends Model
         return $this->hasMany(OrderItem::class);
     }
 
+    public function ratings(): MorphMany
+    {
+        return $this->morphMany(Rating::class, 'ratable');
+    }
+
     // ── Helpers ────────────────────────────────────────────────────
+
+    public function averageScore(): ?float
+    {
+        return $this->ratings()->avg('score');
+    }
+
+    public function userRating(User $user): ?Rating
+    {
+        return $this->ratings()->where('user_id', $user->id)->first();
+    }
 
     /**
      * Returns the price type ('Unit', 'Weight', or 'Volume').

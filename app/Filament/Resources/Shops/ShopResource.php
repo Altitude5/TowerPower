@@ -64,6 +64,7 @@ class ShopResource extends Resource
     {
         return [
             RelationManagers\CategoryCityAssignmentsRelationManager::class,
+            RelationManagers\RatingsRelationManager::class,
         ];
     }
 
