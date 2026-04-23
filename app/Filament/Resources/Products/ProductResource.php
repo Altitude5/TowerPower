@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Products;
 
+use App\Filament\RelationManagers\CommentsRelationManager;
 use App\Filament\Resources\Products\Pages\CreateProduct;
 use App\Filament\Resources\Products\Pages\EditProduct;
 use App\Filament\Resources\Products\Pages\ListProducts;
@@ -65,6 +66,7 @@ class ProductResource extends Resource
     {
         return [
             RelationManagers\RatingsRelationManager::class,
+            CommentsRelationManager::class,
         ];
     }
 

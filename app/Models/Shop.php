@@ -27,6 +27,7 @@ class Shop extends Model
     {
         static::deleting(function (Shop $shop) {
             $shop->ratings()->delete();
+            $shop->comments()->delete();
 
             if ($shop->products()->exists()) {
                 throw new \Exception('Cannot delete shop because it has products.');
@@ -74,6 +75,14 @@ class Shop extends Model
     public function ratings(): MorphMany
     {
         return $this->morphMany(Rating::class, 'ratable');
+    }
+
+    /**
+     * Get the internal comments for the shop.
+     */
+    public function comments(): MorphMany
+    {
+        return $this->morphMany(Comment::class, 'commentable');
     }
 
     /**

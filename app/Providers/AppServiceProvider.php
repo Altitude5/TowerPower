@@ -15,6 +15,7 @@ use App\Observers\OrderObserver;
 use App\Observers\SubOrderObserver;
 use App\Policies\CartItemPolicy;
 use App\Policies\CartPolicy;
+use App\Policies\CommentPolicy;
 use App\Policies\OrderItemPolicy;
 use App\Policies\OrderPolicy;
 use App\Policies\RatingPolicy;
@@ -46,8 +47,10 @@ class AppServiceProvider extends ServiceProvider
         $this->configureDefaults();
 
         Relation::morphMap([
-            'product' => Product::class,
-            'shop' => Shop::class,
+            'product' => \App\Models\Product::class,
+            'shop' => \App\Models\Shop::class,
+            'delivery' => 'App\Models\Delivery',
+            'schedule' => 'App\Models\Schedule',
         ]);
 
         Gate::policy(Cart::class, CartPolicy::class);
@@ -57,6 +60,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(OrderItem::class, OrderItemPolicy::class);
         Gate::policy(Transaction::class, TransactionPolicy::class);
         Gate::policy(Rating::class, RatingPolicy::class);
+        Gate::policy(Comment::class, CommentPolicy::class);
 
         Order::observe(OrderObserver::class);
         SubOrder::observe(SubOrderObserver::class);

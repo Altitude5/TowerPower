@@ -18,6 +18,7 @@ class Product extends Model
     {
         static::deleting(function (Product $product) {
             $product->ratings()->delete();
+            $product->comments()->delete();
         });
     }
 
@@ -70,6 +71,14 @@ class Product extends Model
     public function ratings(): MorphMany
     {
         return $this->morphMany(Rating::class, 'ratable');
+    }
+
+    /**
+     * Get the internal comments for the product.
+     */
+    public function comments(): MorphMany
+    {
+        return $this->morphMany(Comment::class, 'commentable');
     }
 
     // ── Helpers ────────────────────────────────────────────────────

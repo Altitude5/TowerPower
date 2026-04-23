@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Shops;
 
+use App\Filament\RelationManagers\CommentsRelationManager;
 use App\Filament\Resources\Shops\Pages\CreateShop;
 use App\Filament\Resources\Shops\Pages\EditShop;
 use App\Filament\Resources\Shops\Pages\ListShops;
@@ -65,6 +66,7 @@ class ShopResource extends Resource
         return [
             RelationManagers\CategoryCityAssignmentsRelationManager::class,
             RelationManagers\RatingsRelationManager::class,
+            CommentsRelationManager::class,
         ];
     }
 
