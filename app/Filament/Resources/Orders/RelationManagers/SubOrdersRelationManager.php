@@ -2,15 +2,11 @@
 
 namespace App\Filament\Resources\Orders\RelationManagers;
 
-use Filament\Actions\AssociateAction;
+use App\Enums\SubOrderStatus;
+use App\Filament\Resources\SubOrders\Schemas\SubOrderInfolist;
+use App\Models\SubOrder;
 use Filament\Actions\BulkActionGroup;
-use Filament\Actions\CreateAction;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\DissociateAction;
-use Filament\Actions\DissociateBulkAction;
-use Filament\Actions\EditAction;
-use Filament\Forms\Components\TextInput;
+use Filament\Actions\ViewAction;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
@@ -20,40 +16,56 @@ class SubOrdersRelationManager extends RelationManager
 {
     protected static string $relationship = 'subOrders';
 
-    public function form(Schema $schema): Schema
+    public function infolist(Schema $schema): Schema
     {
-        return $schema
-            ->components([
-                TextInput::make('sub_order')
-                    ->required()
-                    ->maxLength(255),
-            ]);
+        return SubOrderInfolist::configure($schema);
     }
 
     public function table(Table $table): Table
     {
         return $table
-            ->recordTitleAttribute('sub_order')
+            ->recordTitleAttribute('id')
             ->columns([
-                TextColumn::make('sub_order')
+                TextColumn::make('id')
+                    ->label('Sub-Order ID')
                     ->searchable(),
+                TextColumn::make('shop.name')
+                    ->label('Shop')
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('status')
+                    ->badge()
+                    ->color(fn (SubOrderStatus $state): string => match ($state) {
+                        SubOrderStatus::Pending => 'gray',
+                        SubOrderStatus::Processing => 'info',
+                        SubOrderStatus::OutForDelivery => 'warning',
+                        SubOrderStatus::Delivered => 'success',
+                        SubOrderStatus::Completed => 'success',
+                        SubOrderStatus::Cancelled => 'danger',
+                        SubOrderStatus::Returned => 'danger',
+                    })
+                    ->sortable(),
+                TextColumn::make('total_final_price')
+                    ->label('Total')
+                    ->state(fn (SubOrder $record): int => $record->totalFinalPrice())
+                    ->money('ILS', divideBy: 100),
+                TextColumn::make('created_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //
             ])
             ->headerActions([
-                CreateAction::make(),
-                AssociateAction::make(),
+                //
             ])
-            ->recordActions([
-                EditAction::make(),
-                DissociateAction::make(),
-                DeleteAction::make(),
+            ->actions([
+                ViewAction::make(),
             ])
-            ->toolbarActions([
+            ->bulkActions([
                 BulkActionGroup::make([
-                    DissociateBulkAction::make(),
-                    DeleteBulkAction::make(),
+                    //
                 ]),
             ]);
     }

@@ -53,14 +53,14 @@ class SubOrdersTable
             ->filters([
                 //
             ])
-            ->recordActions([
+            ->actions([
                 ViewAction::make(),
                 EditAction::make()
                     ->visible(fn () => auth()->user()->isSuperUser()),
                 DeleteAction::make()
                     ->visible(fn () => auth()->user()->isSuperUser()),
             ])
-            ->toolbarActions([
+            ->bulkActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
                         ->visible(fn () => auth()->user()->isSuperUser()),

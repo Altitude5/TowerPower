@@ -9,12 +9,12 @@ use App\Filament\Resources\Discounts\Pages\ViewDiscount;
 use App\Filament\Resources\Discounts\Schemas\DiscountForm;
 use App\Models\Discount;
 use BackedEnum;
+use Filament\Actions\ViewAction;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
-use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 

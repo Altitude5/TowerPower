@@ -3,9 +3,12 @@
 namespace App\Filament\Resources\SubOrders\Schemas;
 
 use App\Enums\SubOrderStatus;
+use App\Filament\Resources\SubOrders\SubOrderResource;
 use App\Models\SubOrder;
-use Filament\Schemas\Components\Section;
+use Filament\Actions\Action;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Schemas\Components\Actions;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
 class SubOrderInfolist
@@ -57,6 +60,15 @@ class SubOrderInfolist
                             ->money('ILS', divideBy: 100)
                             ->weight('bold'),
                     ])->columns(4),
+
+                Actions::make([
+                    Action::make('view_full')
+                        ->label('Go to full Sub-Order page')
+                        ->color('info')
+                        ->icon('heroicon-m-arrow-top-right-on-square')
+                        ->url(fn (SubOrder $record): string => SubOrderResource::getUrl('view', ['record' => $record]))
+                        ->visible(fn (string $operation): bool => $operation !== 'view'),
+                ]),
             ]);
     }
 }
