@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\Shops\Tables;
 
-use App\Models\Shop;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;

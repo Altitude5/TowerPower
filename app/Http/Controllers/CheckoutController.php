@@ -24,7 +24,7 @@ class CheckoutController extends Controller
             return redirect()->route('cart.index')->with('error', 'Your cart is empty.');
         }
 
-        if (!$cart->tower_id) {
+        if (! $cart->tower_id) {
             return redirect()->route('cart.index')->with('error', 'Please select a tower before checking out.');
         }
 

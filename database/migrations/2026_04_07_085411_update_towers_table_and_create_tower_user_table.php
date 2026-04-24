@@ -47,15 +47,15 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('tower_user');
-        
+
         Schema::table('towers', function (Blueprint $table) {
             $table->dropIndex(['name']);
             $table->dropIndex(['city_id']);
             $table->dropIndex(['street_id']);
-            
+
             $table->dropForeign(['street_id']);
             $table->dropForeign(['city_id']);
-            
+
             $table->dropColumn([
                 'street_id',
                 'house_number',
@@ -66,7 +66,7 @@ return new class extends Migration
                 'latitude',
                 'longitude',
             ]);
-            
+
             $table->string('name')->nullable(false)->change();
         });
     }

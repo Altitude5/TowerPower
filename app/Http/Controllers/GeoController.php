@@ -6,7 +6,6 @@ use App\Models\City;
 use App\Models\Street;
 use App\Models\Tower;
 use Illuminate\Http\JsonResponse;
-
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -29,9 +28,10 @@ class GeoController extends Controller
 
         if ($houseNumber) {
             $tower = $street->towers()->where('house_number', $houseNumber)->first();
+
             return response()->json([
                 'found' => (bool) $tower,
-                'tower' => $tower
+                'tower' => $tower,
             ]);
         }
 

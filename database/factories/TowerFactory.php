@@ -4,10 +4,11 @@ namespace Database\Factories;
 
 use App\Models\City;
 use App\Models\Street;
+use App\Models\Tower;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Tower>
+ * @extends Factory<Tower>
  */
 class TowerFactory extends Factory
 {
@@ -22,7 +23,7 @@ class TowerFactory extends Factory
         $street = Street::factory()->create(['city_id' => $city->id]);
 
         return [
-            'name' => 'Tower ' . $this->faker->unique()->word,
+            'name' => 'Tower '.$this->faker->unique()->word,
             'street_id' => $street->id,
             'city_id' => $city->id,
             'house_number' => $this->faker->buildingNumber,

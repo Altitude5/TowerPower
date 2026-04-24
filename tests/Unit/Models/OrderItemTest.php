@@ -48,15 +48,15 @@ it('calculates total final price', function () {
 it('returns total weight correctly', function () {
     $orderItem = new OrderItem(['weight' => '1.500']);
     expect($orderItem->totalWeight())->toBe('1.500');
-    
-    $noWeightItem = new OrderItem();
+
+    $noWeightItem = new OrderItem;
     expect($noWeightItem->totalWeight())->toBe('0.000');
 });
 
 it('returns total volume correctly', function () {
     $orderItem = new OrderItem(['volume' => '0.750']);
     expect($orderItem->totalVolume())->toBe('0.750');
-    
-    $noVolumeItem = new OrderItem();
+
+    $noVolumeItem = new OrderItem;
     expect($noVolumeItem->totalVolume())->toBe('0.000');
 });

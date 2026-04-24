@@ -8,15 +8,15 @@ use App\Filament\Resources\Transactions\Pages\ListTransactions;
 use App\Filament\Resources\Transactions\Pages\ViewTransaction;
 use App\Filament\Resources\Transactions\Schemas\TransactionForm;
 use App\Filament\Resources\Transactions\Schemas\TransactionInfolist;
-use App\Filament\Resources\Transactions\Tables\TransactionsTable;
 use App\Models\Transaction;
 use BackedEnum;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\ViewAction;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Filament\Actions\ViewAction;
-use Filament\Actions\BulkActionGroup;
 
 class TransactionResource extends Resource
 {
@@ -38,9 +38,9 @@ class TransactionResource extends Resource
     {
         return $table
             ->columns([
-                \Filament\Tables\Columns\TextColumn::make('order_id'),
-                \Filament\Tables\Columns\TextColumn::make('amount')->money('ILS'),
-                \Filament\Tables\Columns\TextColumn::make('status'),
+                TextColumn::make('order_id'),
+                TextColumn::make('amount')->money('ILS'),
+                TextColumn::make('status'),
             ])
             ->defaultPaginationPageOption(25)
             ->paginationPageOptions([25, 50, 100])

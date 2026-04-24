@@ -2,8 +2,11 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Role;
+use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class DevUserSeeder extends Seeder
 {
@@ -12,25 +15,25 @@ class DevUserSeeder extends Seeder
      */
     public function run(): void
     {
-        if (!in_array(config('app.env'), ['local', 'testing'])) {
+        if (! in_array(config('app.env'), ['local', 'testing'])) {
             return;
         }
 
         $users = [
-            ['email' => 'super@example.com',    'role' => \App\Models\Role::ROLE_SUPER_USER],
-            ['email' => 'staff@example.com',    'role' => \App\Models\Role::ROLE_STAFF],
-            ['email' => 'seller@example.com',   'role' => \App\Models\Role::ROLE_SELLER],
-            ['email' => 'customer@example.com', 'role' => \App\Models\Role::ROLE_CUSTOMER],
-            ['email' => 'delivery@example.com', 'role' => \App\Models\Role::ROLE_DELIVERY_PERSON],
+            ['email' => 'super@example.com',    'role' => Role::ROLE_SUPER_USER],
+            ['email' => 'staff@example.com',    'role' => Role::ROLE_STAFF],
+            ['email' => 'seller@example.com',   'role' => Role::ROLE_SELLER],
+            ['email' => 'customer@example.com', 'role' => Role::ROLE_CUSTOMER],
+            ['email' => 'delivery@example.com', 'role' => Role::ROLE_DELIVERY_PERSON],
             ['email' => 'user@example.com',     'role' => null],
         ];
 
         foreach ($users as $data) {
-            $user = \App\Models\User::firstOrCreate(
+            $user = User::firstOrCreate(
                 ['email' => $data['email']],
                 [
-                    'name'     => \Illuminate\Support\Str::ucfirst(explode('@', $data['email'])[0]),
-                    'password' => \Illuminate\Support\Facades\Hash::make('password'),
+                    'name' => Str::ucfirst(explode('@', $data['email'])[0]),
+                    'password' => Hash::make('password'),
                 ]
             );
 

@@ -2,8 +2,9 @@
 
 namespace App\Policies;
 
+use App\Models\Role;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
+use App\Services\UserService;
 
 class UserPolicy
 {
@@ -24,8 +25,8 @@ class UserPolicy
         if ($user->isStaff()) {
             // Staff can view if target has Seller, Customer, or Delivery Person role
             // AND target does NOT have Staff or SuperUser role
-            return $model->hasAnyRole([\App\Models\Role::ROLE_SELLER, \App\Models\Role::ROLE_CUSTOMER, \App\Models\Role::ROLE_DELIVERY_PERSON])
-                && !$model->hasAnyRole([\App\Models\Role::ROLE_SUPER_USER, \App\Models\Role::ROLE_STAFF]);
+            return $model->hasAnyRole([Role::ROLE_SELLER, Role::ROLE_CUSTOMER, Role::ROLE_DELIVERY_PERSON])
+                && ! $model->hasAnyRole([Role::ROLE_SUPER_USER, Role::ROLE_STAFF]);
         }
 
         return false;
@@ -53,6 +54,6 @@ class UserPolicy
 
     public function forceDelete(User $user, User $model): bool
     {
-        return $user->isSuperUser() && \App\Services\UserService::canHardDelete($model);
+        return $user->isSuperUser() && UserService::canHardDelete($model);
     }
 }

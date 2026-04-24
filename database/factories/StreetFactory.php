@@ -3,10 +3,11 @@
 namespace Database\Factories;
 
 use App\Models\City;
+use App\Models\Street;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Street>
+ * @extends Factory<Street>
  */
 class StreetFactory extends Factory
 {

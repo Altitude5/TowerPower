@@ -4,8 +4,8 @@ namespace App\Filament\Resources\Orders\Schemas;
 
 use App\Enums\OrderStatus;
 use App\Models\Order;
-use Filament\Schemas\Components\Section;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
 class OrderInfolist
@@ -33,7 +33,7 @@ class OrderInfolist
                         TextEntry::make('created_at')
                             ->dateTime(),
                     ])->columns(2),
-                
+
                 Section::make('Financial Summary')
                     ->schema([
                         TextEntry::make('total_price_amount')

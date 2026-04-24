@@ -53,6 +53,9 @@ class OrderService
                     'status' => SubOrderStatus::Pending,
                 ]);
 
+                // Assign Delivery (Unit 17)
+                app(DeliveryAssignmentService::class)->assignToSubOrder($subOrder);
+
                 foreach ($cartItems as $cartItem) {
                     $product = Product::where('id', $cartItem->product_id)
                         ->lockForUpdate()

@@ -31,16 +31,18 @@ class ImportGeoData extends Command
     {
         $filePath = $this->argument('file');
 
-        if (!File::exists($filePath)) {
+        if (! File::exists($filePath)) {
             $this->error("File not found: {$filePath}");
+
             return 1;
         }
 
         $file = fopen($filePath, 'r');
         $header = fgetcsv($file);
 
-        if (!$header) {
+        if (! $header) {
             $this->error('CSV file is empty.');
+
             return 1;
         }
 
@@ -48,6 +50,7 @@ class ImportGeoData extends Command
         $expectedColumns = ['city_code', 'city_name', 'street_code', 'street_name'];
         if (count(array_intersect($header, $expectedColumns)) < 4) {
             $this->error('CSV must have: city_code, city_name, street_code, street_name');
+
             return 1;
         }
 
@@ -83,11 +86,13 @@ class ImportGeoData extends Command
             $this->info("Imported {$count} lines successfully.");
         } catch (\Exception $e) {
             DB::rollBack();
-            $this->error('Import failed: ' . $e->getMessage());
+            $this->error('Import failed: '.$e->getMessage());
+
             return 1;
         }
 
         fclose($file);
+
         return 0;
     }
 }

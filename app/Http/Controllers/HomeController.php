@@ -28,4 +28,5 @@ class HomeController extends Controller
                 ->take(8)
                 ->get(),
         ]);
-    }}
+    }
+}

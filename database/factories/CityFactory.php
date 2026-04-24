@@ -2,10 +2,11 @@
 
 namespace Database\Factories;
 
+use App\Models\City;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\City>
+ * @extends Factory<City>
  */
 class CityFactory extends Factory
 {
@@ -17,7 +18,7 @@ class CityFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => 'City-' . $this->faker->unique()->randomNumber(5),
+            'name' => 'City-'.$this->faker->unique()->randomNumber(5),
             'code' => (string) $this->faker->unique()->numberBetween(10, 999),
         ];
     }

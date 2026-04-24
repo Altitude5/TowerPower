@@ -16,6 +16,7 @@ class GeoImporter extends Page implements HasForms
     use InteractsWithForms;
 
     protected string $view = 'filament.pages.geo-importer';
+
     protected static ?string $navigationLabel = 'Geo Importer';
 
     public ?array $data = [];

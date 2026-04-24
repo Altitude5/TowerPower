@@ -47,8 +47,8 @@ class AppServiceProvider extends ServiceProvider
         $this->configureDefaults();
 
         Relation::morphMap([
-            'product' => \App\Models\Product::class,
-            'shop' => \App\Models\Shop::class,
+            'product' => Product::class,
+            'shop' => Shop::class,
             'delivery' => 'App\Models\Delivery',
             'schedule' => 'App\Models\Schedule',
         ]);

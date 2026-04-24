@@ -2,14 +2,14 @@
 
 namespace Database\Factories;
 
-use App\Models\SubOrder;
+use App\Enums\SubOrderStatus;
 use App\Models\Order;
 use App\Models\Shop;
-use App\Enums\SubOrderStatus;
+use App\Models\SubOrder;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\SubOrder>
+ * @extends Factory<SubOrder>
  */
 class SubOrderFactory extends Factory
 {

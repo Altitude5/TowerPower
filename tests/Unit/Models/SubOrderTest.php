@@ -30,11 +30,11 @@ it('aggregates total quantity from items', function () {
 
 it('validates state transitions', function () {
     $subOrder = new SubOrder(['status' => SubOrderStatus::Pending]);
-    
+
     expect($subOrder->canTransitionTo(SubOrderStatus::Processing))->toBeTrue();
     expect($subOrder->canTransitionTo(SubOrderStatus::Cancelled))->toBeTrue();
     expect($subOrder->canTransitionTo(SubOrderStatus::Delivered))->toBeFalse();
-    
+
     $subOrder->status = SubOrderStatus::Processing;
     expect($subOrder->canTransitionTo(SubOrderStatus::OutForDelivery))->toBeTrue();
     expect($subOrder->canTransitionTo(SubOrderStatus::Pending))->toBeFalse();

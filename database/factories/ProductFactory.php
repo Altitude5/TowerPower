@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Product>
+ * @extends Factory<Product>
  */
 class ProductFactory extends Factory
 {
@@ -21,9 +21,10 @@ class ProductFactory extends Factory
     public function definition(): array
     {
         $name = $this->faker->unique()->word;
+
         return [
             'name' => $name,
-            'slug' => Str::slug($name . '-' . $this->faker->randomNumber(3)),
+            'slug' => Str::slug($name.'-'.$this->faker->randomNumber(3)),
             'price' => $this->faker->numberBetween(100, 10000),
             'price_type' => $this->faker->randomElement(['Unit', 'Weight', 'Volume']),
             'shop_id' => Shop::factory(),

@@ -2,9 +2,13 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Role;
+use App\Models\User;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 
 #[Signature('user:create-super-user')]
 #[Description('Create a new Super User')]
@@ -17,7 +21,7 @@ class CreateSuperUser extends Command
     {
         $email = $this->ask('Enter the email address for the Super User');
 
-        $validator = \Illuminate\Support\Facades\Validator::make(['email' => $email], [
+        $validator = Validator::make(['email' => $email], [
             'email' => ['required', 'email', 'unique:users,email'],
         ]);
 
@@ -25,6 +29,7 @@ class CreateSuperUser extends Command
             foreach ($validator->errors()->all() as $error) {
                 $this->error($error);
             }
+
             return 1;
         }
 
@@ -33,24 +38,27 @@ class CreateSuperUser extends Command
 
         if ($password !== $passwordConfirmation) {
             $this->error('Passwords do not match.');
+
             return 1;
         }
 
         if (strlen($password) < 8) {
             $this->error('Password must be at least 8 characters.');
+
             return 1;
         }
 
-        $user = \App\Models\User::create([
+        $user = User::create([
             'email' => $email,
             'name' => ucfirst(explode('@', $email)[0]),
-            'password' => \Illuminate\Support\Facades\Hash::make($password),
+            'password' => Hash::make($password),
         ]);
 
-        $role = \App\Models\Role::where('slug', \App\Models\Role::ROLE_SUPER_USER)->first();
+        $role = Role::where('slug', Role::ROLE_SUPER_USER)->first();
 
-        if (!$role) {
+        if (! $role) {
             $this->error('Super User role not found. Please run RoleSeeder.');
+
             return 1;
         }
 
