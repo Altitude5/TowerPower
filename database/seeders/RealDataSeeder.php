@@ -102,11 +102,11 @@ class RealDataSeeder extends Seeder
         }
         // 4. Seed Geo Data (Cities, Streets, Towers)
         $israeliCities = [
-            'Tel-Aviv' => '5000',
+            'תל-אביב - יפו' => '5000',
             'רמת-גן' => '8600',
-            'Givataim' => '6300',
-            'Petah Tikvah' => '7900',
-            'Rishon Lezion' => '8300',
+            'גבעתיים' => '6300',
+            'פתח תקווה' => '7900',
+            'ראשון לציון' => '8300',
         ];
 
         foreach ($israeliCities as $cityName => $cityCode) {

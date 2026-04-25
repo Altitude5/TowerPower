@@ -23,18 +23,29 @@ class CartController extends Controller
     public function index(): Response
     {
         $cart = CartService::getCart(auth()->user());
-        $cart->load(['items.product.shop', 'items.product.category']);
+        $cart->load(['items.product.shop', 'items.product.category', 'tower']);
+
+        $deliveryService = app(\App\Services\DeliveryAssignmentService::class);
+        $cityId = $cart->tower->city_id ?? null;
 
         $groupedItems = $cart->items->groupBy(function ($item) {
             return $item->product->shop_id.'-'.($item->category_name ?? $item->product->category?->name ?? 'General');
-        })->map(function ($items) {
+        })->map(function ($items) use ($deliveryService, $cityId) {
             $firstItem = $items->first();
+            $shopId = $firstItem->product->shop_id;
+            
+            $nextDelivery = null;
+            if ($cityId) {
+                $nextDelivery = $deliveryService->findNextDeliveryDate($shopId, $cityId, now());
+            }
 
             return [
-                'shop_id' => $firstItem->product->shop_id,
+                'shop_id' => $shopId,
                 'shop_name' => $firstItem->shop_name ?? $firstItem->product->shop->name,
                 'category_name' => $firstItem->category_name ?? $firstItem->product->category?->name ?? 'General',
                 'items' => $items,
+                'expected_delivery_date' => $nextDelivery ? $nextDelivery['date']->format('Y-m-d') : null,
+                'expected_delivery_day' => $nextDelivery ? $nextDelivery['date']->format('l, M j') : 'No schedule found',
             ];
         })->values();
 

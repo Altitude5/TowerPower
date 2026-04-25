@@ -24,6 +24,8 @@ interface GroupedItems {
     shop_id: number;
     shop_name: string;
     category_name: string;
+    expected_delivery_date: string | null;
+    expected_delivery_day: string | null;
     items: CartItem[];
 }
 
@@ -96,7 +98,12 @@ const checkout = () => {
                                         {{ getItemMultiplier(item) }} 
                                         × {{ formatPrice(item.product.price) }}
                                     </p>
-                                    <p class="text-[10px] text-slate-400 uppercase font-medium mt-1">Sold by: {{ group.shop_name }}</p>
+                                    <p class="text-[10px] text-slate-400 uppercase font-medium mt-1">
+                                        Sold by: {{ group.shop_name }}
+                                        <span v-if="group.expected_delivery_day" class="ml-2 text-blue-600">
+                                            • Expected Delivery: {{ group.expected_delivery_day }}
+                                        </span>
+                                    </p>
                                 </div>
                                 <div class="text-right">
                                     <p class="font-bold text-slate-900">
