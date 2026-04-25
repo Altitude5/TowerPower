@@ -118,7 +118,7 @@ class DeliveryAssignmentService
     private function scheduleMatchesDate(Schedule $schedule, CarbonInterface $date): bool
     {
         return match ($schedule->recurrence) {
-            'one_time' => $schedule->date?->isSameDay($date),
+            'one_time' => (bool) $schedule->date?->isSameDay($date),
             'daily' => true,
             'weekdays_sunday' => $date->dayOfWeek >= CarbonInterface::SUNDAY
                 && $date->dayOfWeek <= CarbonInterface::THURSDAY,

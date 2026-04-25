@@ -98,7 +98,7 @@ defineProps<{
                         v-for="product in featuredProducts" 
                         :key="product.id"
                         class="bg-white rounded-lg shadow-sm border border-slate-100 overflow-hidden group"
-                    >{{ categories.length }} {{ categories[0]  }} | {{  product.slug }}
+                    >
                         <!-- <Link :href="getRoute('product.show', { category: categories && categories.length > 0 ? categories[0].slug : 'misc', product: product.slug })">
                             <div class="aspect-square bg-slate-100 relative">
                                 <img v-if="product.image_path" :src="`/${product.image_path}`" class="object-cover w-full h-full" />
@@ -124,12 +124,13 @@ defineProps<{
                                 <h3 class="font-semibold text-slate-800 group-hover:text-blue-600 transition">{{ product.name }}</h3>
                                 <p class="text-blue-700 font-bold mt-1">{{ formatPrice(product.price) }}</p>
 
-                                <div class="mt-4">
-                                    <AddToCartButton :product-id="product.id" :price-type="product.price_type" />
-                                </div>
+
                             </div>
                         </Link>
-                        {{ product.category?.slug  }}
+                                                        <div class="mt-4">
+                                    <AddToCartButton :product-id="product.id" :price-type="product.price_type" />
+                                </div>
+               
                         <!-- <Link :href="getRoute('product.show', { category: categories && categories.length > 0 ? categories[0].slug : 'misc', product: product.slug })">
                             <div class="aspect-square bg-slate-100 relative">
                                 <img v-if="product.image_path" :src="`/${product.image_path}`" class="object-cover w-full h-full" />

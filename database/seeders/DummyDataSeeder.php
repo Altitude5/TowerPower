@@ -7,6 +7,7 @@ use App\Models\City;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\Role;
+use App\Models\Schedule;
 use App\Models\Shop;
 use App\Models\Street;
 use App\Models\Tower;
@@ -66,6 +67,41 @@ class DummyDataSeeder extends Seeder
                     'floor' => rand(1, 20),
                 ]);
             }
+
+            // 1. Geography
+            $city = City::firstOrCreate(['name' => 'Tel Aviv'], ['code' => '70']);
+            $street = Street::firstOrCreate(['city_id' => $city->id, 'name' => 'Dizengoff']);
+
+            // 5.5 Create Schedules for deliveries
+            $allCities = City::all();
+            if ($allCities->isEmpty()) {
+                $allCities = collect([$city]);
+            }
+            
+            $shops = Shop::all();
+            if ($shops->isEmpty()) {
+                // If no shops exist, we need to create some or at least one for schedules
+                $sellerRole = Role::where('slug', 'seller')->first();
+                $seller = User::factory()->create();
+                $seller->assignRole($sellerRole);
+                $shops = collect([Shop::factory()->create(['owner_id' => $seller->id])]);
+            }
+
+            $deliveryPersonRole = Role::where('slug', 'delivery_person')->first();
+            $deliveryPersons = User::whereHas('roles', fn($q) => $q->where('slug', 'delivery_person'))->get();
+            
+            if ($deliveryPersons->isEmpty()) {
+                $deliveryPersons = User::factory()->count(5)->create()->each(fn($u) => $u->assignRole($deliveryPersonRole));
+            }
+
+            for ($i = 0; $i < 100; $i++) {
+                Schedule::factory()->create([
+                    'shop_id' => $shops->random()->id,
+                    'city_id' => $allCities->random()->id,
+                    'delivery_person_id' => $deliveryPersons->random()->id,
+                    'type' => 'positive',
+                ]);
+            }
         }
 
         $customers = User::whereHas('roles', function ($q) {
@@ -75,6 +111,7 @@ class DummyDataSeeder extends Seeder
         // 6. Orders & Transactions
         $products = Product::all();
         $shops = Shop::all();
+        $deliveryService = app(\App\Services\DeliveryAssignmentService::class);
 
         for ($i = 0; $i < 100; $i++) {
             $customer = $customers->random();
@@ -101,6 +138,9 @@ class DummyDataSeeder extends Seeder
                     'price_type' => $product->price_type,
                     'quantity' => 1,
                 ]);
+
+                // Auto-assign delivery
+                $deliveryService->assignToSubOrder($subOrder);
             }
 
             Transaction::create([
