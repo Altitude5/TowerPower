@@ -164,8 +164,9 @@ const handleAddTower = async () => {
             }
         });
         
-        // Rule 7: Treat both 200 and 201 identically
+        // Transition directly to Phase 2 for manually added towers
         tower.value = response.data;
+        isTowerConfirmed.value = true;
         lookupNotFound.value = false;
         isAddingTower.value = false;
         newTowerName.value = '';
