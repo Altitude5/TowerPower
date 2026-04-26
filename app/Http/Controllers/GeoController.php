@@ -27,7 +27,10 @@ class GeoController extends Controller
         $houseNumber = $request->query('house_number');
 
         if ($houseNumber) {
-            $tower = $street->towers()->where('house_number', trim(strtoupper($houseNumber)))->first();
+            $tower = $street->towers()
+                ->with(['street', 'city'])
+                ->where('house_number', trim(strtoupper($houseNumber)))
+                ->first();
 
             return response()->json([
                 'found' => (bool) $tower,
@@ -64,6 +67,8 @@ class GeoController extends Controller
             ->first();
 
         if ($tower) {
+            $tower->load(['street', 'city']);
+
             return response()->json($tower, 200);
         }
 
@@ -79,6 +84,7 @@ class GeoController extends Controller
         }
 
         $tower = Tower::create($data);
+        $tower->load(['street', 'city']);
 
         return response()->json($tower, 201);
     }

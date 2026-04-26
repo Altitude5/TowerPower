@@ -27,6 +27,11 @@ class Tower extends Model
         'longitude',
     ];
 
+    protected $appends = [
+        'image_url',
+        'full_address',
+    ];
+
     /**
      * Get the URL for the tower image.
      */
@@ -73,7 +78,7 @@ class Tower extends Model
     /**
      * Get the full address of the tower.
      */
-    public function full_address(): string
+    public function getFullAddressAttribute(): string
     {
         $streetName = $this->street->name ?? 'Unknown Street';
         $cityName = $this->city->name ?? 'Unknown City';
