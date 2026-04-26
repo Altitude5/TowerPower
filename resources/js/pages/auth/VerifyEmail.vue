@@ -3,7 +3,7 @@ import { Form, Head } from '@inertiajs/vue3';
 import TextLink from '@/components/TextLink.vue';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
-import AuthLayout from '@/layouts/AuthLayout.vue';
+import AuthSimpleLayout from '@/layouts/auth/AuthSimpleLayout.vue';
 import { logout } from '@/routes';
 import { send } from '@/routes/verification';
 
@@ -13,7 +13,7 @@ defineProps<{
 </script>
 
 <template>
-    <AuthLayout
+    <AuthSimpleLayout
         title="Verify email"
         description="Please verify your email address by clicking on the link we just emailed to you."
     >
@@ -45,5 +45,5 @@ defineProps<{
                 Log out
             </TextLink>
         </Form>
-    </AuthLayout>
+    </AuthSimpleLayout>
 </template>

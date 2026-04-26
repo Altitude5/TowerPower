@@ -15,7 +15,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import AuthBase from '@/layouts/AuthLayout.vue';
+import AuthSimpleLayout from '@/layouts/auth/AuthSimpleLayout.vue';
 import { register } from '@/routes';
 import { store } from '@/routes/login';
 import { request } from '@/routes/password';
@@ -31,7 +31,7 @@ defineProps<{
 </script>
 
 <template>
-    <AuthBase
+    <AuthSimpleLayout
         title="Log in to your account"
         description="Enter your email and password below to log in"
     >
@@ -135,5 +135,5 @@ defineProps<{
                 <TextLink :href="register()" :tabindex="5">Sign up</TextLink>
             </div>
         </Form>
-    </AuthBase>
+    </AuthSimpleLayout>
 </template>

@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
-import AuthLayout from '@/layouts/AuthLayout.vue';
+import AuthSimpleLayout from '@/layouts/auth/AuthSimpleLayout.vue';
 import { update } from '@/routes/password';
 
 const props = defineProps<{
@@ -19,7 +19,7 @@ const inputEmail = ref(props.email);
 </script>
 
 <template>
-    <AuthLayout
+    <AuthSimpleLayout
         title="Reset password"
         description="Please enter your new password below"
     >
@@ -84,5 +84,5 @@ const inputEmail = ref(props.email);
                 </Button>
             </div>
         </Form>
-    </AuthLayout>
+    </AuthSimpleLayout>
 </template>

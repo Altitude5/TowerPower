@@ -30,6 +30,8 @@ class CreateNewUser implements CreatesNewUsers
             'password' => $input['password'],
         ]);
 
+        $user->assignRole(\App\Models\Role::ROLE_CUSTOMER);
+
         $user->towers()->attach($input['tower_id'], [
             'floor' => $input['floor'],
             'apartment_number' => $input['apartment_number'],

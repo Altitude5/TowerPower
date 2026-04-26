@@ -15,7 +15,7 @@ return new class extends Migration
             $table->string('name')->nullable()->change();
             $table->foreignId('street_id')->after('name')->constrained()->cascadeOnDelete();
             $table->string('house_number')->after('street_id');
-            $table->string('zipcode')->after('house_number');
+            $table->string('zipcode')->after('house_number')->nullable();
             $table->foreignId('city_id')->after('zipcode')->constrained()->cascadeOnDelete();
             $table->string('state')->after('city_id')->nullable();
             $table->string('country')->after('state')->nullable();

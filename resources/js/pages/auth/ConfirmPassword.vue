@@ -5,12 +5,12 @@ import PasswordInput from '@/components/PasswordInput.vue';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
-import AuthLayout from '@/layouts/AuthLayout.vue';
+import AuthSimpleLayout from '@/layouts/auth/AuthSimpleLayout.vue';
 import { store } from '@/routes/password/confirm';
 </script>
 
 <template>
-    <AuthLayout
+    <AuthSimpleLayout
         title="Confirm your password"
         description="This is a secure area of the application. Please confirm your password before continuing."
     >
@@ -48,5 +48,5 @@ import { store } from '@/routes/password/confirm';
                 </div>
             </div>
         </Form>
-    </AuthLayout>
+    </AuthSimpleLayout>
 </template>

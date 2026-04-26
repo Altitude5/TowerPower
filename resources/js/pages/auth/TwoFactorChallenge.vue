@@ -9,7 +9,7 @@ import {
     InputOTPGroup,
     InputOTPSlot,
 } from '@/components/ui/input-otp';
-import AuthLayout from '@/layouts/AuthLayout.vue';
+import AuthSimpleLayout from '@/layouts/auth/AuthSimpleLayout.vue';
 import { store } from '@/routes/two-factor/login';
 import type { TwoFactorConfigContent } from '@/types';
 
@@ -43,7 +43,7 @@ const code = ref<string>('');
 </script>
 
 <template>
-    <AuthLayout
+    <AuthSimpleLayout
         :title="authConfigContent.title"
         :description="authConfigContent.description"
     >
@@ -129,5 +129,5 @@ const code = ref<string>('');
                 </Form>
             </template>
         </div>
-    </AuthLayout>
+    </AuthSimpleLayout>
 </template>

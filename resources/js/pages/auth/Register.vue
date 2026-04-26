@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Form, Head, useFormContext } from '@inertiajs/vue3';
+import { Form, Head } from '@inertiajs/vue3';
 import InputError from '@/components/InputError.vue';
 import PasswordInput from '@/components/PasswordInput.vue';
 import TextLink from '@/components/TextLink.vue';
@@ -7,12 +7,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
-import AuthBase from '@/layouts/AuthLayout.vue';
+import AuthSimpleLayout from '@/Layouts/auth/AuthSimpleLayout.vue';
 import { login } from '@/routes';
 import { store } from '@/routes/register';
 import { ref, watch, computed } from 'vue';
 import SearchableSelect from '@/components/SearchableSelect.vue';
 import axios from 'axios';
+import { useDebounceFn } from '@vueuse/core';
 import {
     Dialog,
     DialogContent,
@@ -27,77 +28,80 @@ const props = defineProps<{
     cities: Array<{ id: number; name: string }>;
 }>();
 
+// Phase 1 State
 const selectedCityId = ref<string | number>('');
 const selectedStreetId = ref<string | number>('');
 const houseNumber = ref('');
-const selectedTowerId = ref<string | number>('');
+const isTowerConfirmed = ref(false);
+const tower = ref<any>(null);
+const lookupNotFound = ref(false);
+const streetName = ref('');
 
 const streets = ref<Array<{ id: number; name: string }>>([]);
-const towers = ref<Array<{ id: number; name: string; house_number?: string }>>([]);
-
 const loadingStreets = ref(false);
 const loadingTowers = ref(false);
 
+// Add Tower State
 const isAddingTower = ref(false);
 const newTowerName = ref('');
+const towerImageFile = ref<File | null>(null);
 const savingTower = ref(false);
 const towerErrors = ref<Record<string, string[]>>({});
 
-const matchingTowers = computed(() => {
-    const hn = houseNumber.value?.trim();
-    if (!hn || !towers.value.length) return [];
-    return towers.value.filter(t => String(t.house_number || '').trim() === hn);
+// Image handling
+const currentImage = computed(() => {
+    if (tower.value && tower.value.image_path) {
+        return '/storage/' + tower.value.image_path;
+    }
+    return '/storage/powertower.png';
 });
 
-const showTowerSelect = computed(() => {
-    return houseNumber.value && matchingTowers.value.length > 1;
-});
-
-const showConfirmTowerButton = computed(() => {
-    return !!selectedTowerId.value && matchingTowers.value.length > 0;
-});
-
-const showAddTowerButton = computed(() => {
-    return houseNumber.value && !loadingTowers.value && matchingTowers.value.length === 0;
-});
-
-import { useDebounceFn } from '@vueuse/core';
-
-// ... (other refs)
-
-// Removed auto-select watcher for single tower matches to enforce manual confirmation as per requirements.
-
+// Step 1c - Debounced Lookup
 const fetchTower = useDebounceFn(async () => {
     if (!houseNumber.value.trim() || !selectedStreetId.value) {
-        towers.value = [];
+        tower.value = null;
+        lookupNotFound.value = false;
         return;
     }
+    
     loadingTowers.value = true;
     try {
-        const response = await axios.get(route('geo.towers', { street: selectedStreetId.value, house_number: houseNumber.value }));
+        const response = await axios.get(route('geo.towers', { 
+            street: selectedStreetId.value, 
+            house_number: houseNumber.value 
+        }));
+        
+        streetName.value = response.data.street_name || '';
+        
         if (response.data.found) {
-            towers.value = [response.data.tower];
+            tower.value = response.data.tower;
+            lookupNotFound.value = false;
         } else {
-            towers.value = [];
+            tower.value = null;
+            lookupNotFound.value = true;
         }
     } catch (error) {
         console.error('Error fetching towers:', error);
-        towers.value = [];
+        tower.value = null;
+        lookupNotFound.value = false;
     } finally {
         loadingTowers.value = false;
     }
 }, 1000);
 
 watch(houseNumber, () => {
+    lookupNotFound.value = false; // Rule 6: Disappears on new keystroke
     fetchTower();
 });
 
+// Step 1b - Reset logic
 watch(selectedCityId, async (newCityId) => {
     selectedStreetId.value = '';
     streets.value = [];
-    selectedTowerId.value = '';
     houseNumber.value = '';
-    towers.value = [];
+    tower.value = null;
+    isTowerConfirmed.value = false;
+    lookupNotFound.value = false;
     
     if (newCityId) {
         loadingStreets.value = true;
@@ -113,30 +117,59 @@ watch(selectedCityId, async (newCityId) => {
 });
 
 watch(selectedStreetId, () => {
-    selectedTowerId.value = '';
     houseNumber.value = '';
-    towers.value = [];
+    tower.value = null;
+    isTowerConfirmed.value = false;
+    lookupNotFound.value = false;
 });
 
-// Removed the problematic watcher that caused TypeError
+const startOver = () => {
+    selectedCityId.value = '';
+    selectedStreetId.value = '';
+    houseNumber.value = '';
+    tower.value = null;
+    isTowerConfirmed.value = false;
+    lookupNotFound.value = false;
+    streets.value = [];
+};
 
+const confirmTower = () => {
+    isTowerConfirmed.value = true;
+};
+
+const handleImageUpload = (event: Event) => {
+    const target = event.target as HTMLInputElement;
+    if (target.files && target.files[0]) {
+        towerImageFile.value = target.files[0];
+    }
+};
 
 const handleAddTower = async () => {
     savingTower.value = true;
     towerErrors.value = {};
+    
+    const formData = new FormData();
+    formData.append('name', newTowerName.value);
+    formData.append('city_id', String(selectedCityId.value));
+    formData.append('street_id', String(selectedStreetId.value));
+    formData.append('house_number', houseNumber.value);
+    if (towerImageFile.value) {
+        formData.append('image', towerImageFile.value);
+    }
+
     try {
-        const response = await axios.post(route('geo.towers.store'), {
-            name: newTowerName.value,
-            city_id: selectedCityId.value,
-            street_id: selectedStreetId.value,
-            house_number: houseNumber.value,
+        const response = await axios.post(route('geo.towers.store'), formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
         });
         
-        const newTower = response.data;
-        towers.value.push(newTower);
-        selectedTowerId.value = newTower.id;
+        // Rule 7: Treat both 200 and 201 identically
+        tower.value = response.data;
+        lookupNotFound.value = false;
         isAddingTower.value = false;
         newTowerName.value = '';
+        towerImageFile.value = null;
     } catch (error: any) {
         if (error.response?.status === 422) {
             towerErrors.value = error.response.data.errors;
@@ -147,32 +180,13 @@ const handleAddTower = async () => {
         savingTower.value = false;
     }
 };
-
-const resetGeoSelection = () => {
-    selectedCityId.value = '';
-    selectedStreetId.value = '';
-    houseNumber.value = '';
-    selectedTowerId.value = '';
-    streets.value = [];
-    towers.value = [];
-};
-const selectedTower = computed(() => {
-    return towers.value.find(t => t.id === Number(selectedTowerId.value));
-});
-
-const towerImageUrl = computed(() => {
-    if (selectedTower.value && selectedTower.value.image_path) {
-        return '/storage/' + selectedTower.value.image_path;
-    }
-    return '/storage/tower3.jpg';
-});
 </script>
 
 <template>
-    <AuthBase
+    <AuthSimpleLayout
         title="Create an account"
-        description="Enter your details below to create your account"
-        :image="(towers.length === 1 && towers[0].image_path) ? '/storage/' + towers[0].image_path : (selectedTowerId ? towerImageUrl : '/storage/powertower.png')"
+        description="Join your tower's community today"
+        :image="currentImage"
     >
         <Head title="Register" />
 
@@ -183,127 +197,127 @@ const towerImageUrl = computed(() => {
             class="flex flex-col gap-6"
         >
             <div class="grid gap-6">
-                <!-- Collapsible Geo Selection Container -->
-                <div v-if="!selectedTowerId" class="grid gap-6">
-                    <div v-if="!towers.length" class="grid gap-6">
-                        <div class="grid gap-2">
-                            <Label for="city_id">City</Label>
-                            <SearchableSelect
-                                v-model="selectedCityId"
-                                :options="cities"
-                                placeholder="Select City"
-                            />
-                        </div>
+                <!-- Phase 1: Tower Search (Progressive Disclosure) -->
+                <div v-if="!isTowerConfirmed" class="grid gap-6">
+                    <!-- Step 1a: City Dropdown -->
+                    <div v-if="!tower" class="grid gap-2">
+                        <Label for="city_id">City</Label>
+                        <SearchableSelect
+                            v-model="selectedCityId"
+                            :options="cities"
+                            placeholder="Select City"
+                        />
+                    </div>
 
-                        <div v-if="selectedCityId" class="grid gap-2">
-                            <Label for="street_id">Street</Label>
-                            <SearchableSelect
-                                v-model="selectedStreetId"
-                                :options="streets"
-                                placeholder="Select Street"
-                                :disabled="loadingStreets"
-                            />
-                            <div v-if="loadingStreets" class="text-xs text-muted-foreground italic">Loading streets...</div>
-                        </div>
+                    <!-- Step 1b: Street Dropdown -->
+                    <div v-if="selectedCityId && !tower" class="grid gap-2">
+                        <Label for="street_id">Street</Label>
+                        <SearchableSelect
+                            v-model="selectedStreetId"
+                            :options="streets"
+                            placeholder="Select Street"
+                            :disabled="loadingStreets"
+                        />
+                        <div v-if="loadingStreets" class="text-xs text-muted-foreground italic">Loading streets...</div>
+                    </div>
 
-                        <div v-if="selectedStreetId" class="grid gap-2">
-                            <Label for="house_number">House Number</Label>
+                    <!-- Step 1c: House Number Input -->
+                    <div v-if="selectedStreetId && !tower" class="grid gap-2">
+                        <Label for="house_number">House Number</Label>
+                        <div class="relative">
                             <Input
                                 id="house_number"
                                 v-model="houseNumber"
                                 placeholder="e.g. 42"
+                                :disabled="loadingTowers"
                             />
-                            <div v-if="loadingTowers" class="text-xs text-muted-foreground italic">Searching for tower...</div>
+                            <div v-if="loadingTowers" class="absolute right-3 top-2.5">
+                                <Spinner class="size-4" />
+                            </div>
                         </div>
+                        <div v-if="loadingTowers" class="text-xs text-muted-foreground italic">Searching for tower...</div>
                     </div>
 
                     <!-- Step 1d: Tower Confirmation -->
-                    <div v-else-if="towers.length === 1" class="grid gap-4 p-4 border rounded-lg bg-accent/50">
+                    <div v-if="tower" class="grid gap-4 p-4 border rounded-lg bg-accent/50 animate-in fade-in zoom-in duration-300">
                         <div class="space-y-1">
-                            <h3 class="font-semibold">{{ towers[0].name }}</h3>
-                            <p class="text-sm text-muted-foreground">{{ towers[0].full_address }}</p>
+                            <h3 class="font-semibold text-lg">{{ tower.name }}</h3>
+                            <p class="text-sm text-muted-foreground">{{ tower.full_address }}</p>
                         </div>
                         
-                        <Button type="button" @click="selectedTowerId = String(towers[0].id)" class="w-full">
+                        <Button type="button" @click="confirmTower" class="w-full">
                             Yes, this is my Tower!
                         </Button>
                         
                         <div class="text-center text-sm">
-                            <span class="text-muted-foreground">Not your building?</span>
-                            <button type="button" class="ml-1 text-primary hover:underline" @click="resetGeoSelection">
+                            <span class="text-muted-foreground">No, this is not my Tower</span>
+                            <button type="button" class="ml-1 text-primary hover:underline font-medium" @click="startOver">
                                 Start over tower search
                             </button>
                         </div>
                     </div>
+
+                    <!-- Step 1e: "Add Tower" prompt -->
+                    <div v-if="lookupNotFound && !loadingTowers" class="pt-2 animate-in fade-in duration-300">
+                        <Dialog v-model:open="isAddingTower">
+                            <DialogTrigger as-child>
+                                <Button type="button" variant="outline" class="w-full shadow-sm border-dashed">
+                                    Add Tower at {{ streetName }} {{ houseNumber }}
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                                <DialogHeader>
+                                    <DialogTitle>Add New Tower</DialogTitle>
+                                    <DialogDescription>
+                                        We couldn't find a building at <strong>{{ streetName }} {{ houseNumber }}</strong>. 
+                                        You can add it now.
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <div class="grid gap-4 py-4">
+                                    <div class="grid gap-2">
+                                        <Label for="new_tower_name">Building/Tower Name (Optional)</Label>
+                                        <Input
+                                            id="new_tower_name"
+                                            v-model="newTowerName"
+                                            placeholder="e.g. Park Tower A"
+                                        />
+                                        <p v-if="towerErrors.name" class="text-sm text-destructive font-medium">{{ towerErrors.name[0] }}</p>
+                                    </div>
+                                    <div class="grid gap-2">
+                                        <Label for="tower_image">Building Image (Optional)</Label>
+                                        <Input
+                                            id="tower_image"
+                                            type="file"
+                                            accept="image/*"
+                                            @change="handleImageUpload"
+                                        />
+                                        <p v-if="towerErrors.image" class="text-sm text-destructive font-medium">{{ towerErrors.image[0] }}</p>
+                                        <p class="text-[10px] text-muted-foreground">JPG, GIF or PNG. Max 5MB.</p>
+                                    </div>
+                                </div>
+                                <DialogFooter>
+                                    <Button type="button" @click="async () => await handleAddTower()" :disabled="savingTower">
+                                        <Spinner v-if="savingTower" class="mr-2" />
+                                        Create Tower
+                                    </Button>
+                                </DialogFooter>
+                            </DialogContent>
+                        </Dialog>
+                    </div>
                 </div>
 
-                <!-- Tower Selection/Creation -->
-
-                <!-- Tower Selection/Creation (Dependent on House Number) -->
-                <div v-if="houseNumber && towers.length > 1" class="grid gap-2">
-                    <div v-if="showTowerSelect">
-                        <Label for="tower_id" class="text-amber-600 font-medium">Found multiple towers at #{{ houseNumber }}</Label>
-                        <SearchableSelect
-                            v-model="selectedTowerId"
-                            :options="matchingTowers"
-                            placeholder="Select Tower"
-                        />
-                    </div>
-
-                    <div v-if="showConfirmTowerButton" class="pt-2">
-                        <Button type="button" variant="outline" class="w-full border-green-600 text-green-600 bg-green-50/50 hover:bg-green-50 cursor-default font-semibold shadow-sm">
-                            ✓ This is my Tower
-                        </Button>
-                        <button 
-                            type="button" 
-                            class="mt-2 w-full text-xs text-muted-foreground hover:text-primary underline underline-offset-2"
-                            @click="resetGeoSelection"
-                        >
-                            start over tower search
+                <!-- Phase 2: User Details (Visible only after Tower selection) -->
+                <div v-if="isTowerConfirmed" class="grid gap-6 animate-in slide-in-from-bottom-4 duration-500">
+                    <div class="flex items-center justify-between p-3 border rounded-lg bg-muted/30">
+                        <div class="flex flex-col">
+                            <span class="text-xs font-bold uppercase text-muted-foreground tracking-wider">Building</span>
+                            <span class="font-medium">{{ tower.name }}</span>
+                        </div>
+                        <button type="button" @click="isTowerConfirmed = false" class="text-xs text-primary hover:underline">
+                            Change
                         </button>
                     </div>
-                </div>
 
-                <div v-if="houseNumber && towers.length === 0 && !loadingTowers" class="pt-2">
-                    <Dialog v-model:open="isAddingTower">
-                        <DialogTrigger as-child>
-                            <Button type="button" variant="outline" class="w-full shadow-sm">
-                                Add Tower at #{{ houseNumber }}
-                            </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                            <DialogHeader>
-                                <DialogTitle>Add New Tower</DialogTitle>
-                                <DialogDescription>
-                                    We couldn't find a tower at this address. Please provide a name to create it.
-                                </DialogDescription>
-                            </DialogHeader>
-                            <div class="grid gap-4 py-4">
-                                <div class="grid gap-2">
-                                    <Label for="new_tower_name">Tower Name (e.g. Tower A)</Label>
-                                    <Input
-                                        id="new_tower_name"
-                                        v-model="newTowerName"
-                                        placeholder="Enter tower name"
-                                    />
-                                    <p v-if="towerErrors.name" class="text-sm text-destructive font-medium">{{ towerErrors.name[0] }}</p>
-                                </div>
-                            </div>
-                            <DialogFooter>
-                                <Button type="button" @click="async () => await handleAddTower()" :disabled="savingTower || !newTowerName">
-                                    <Spinner v-if="savingTower" class="mr-2" />
-                                    Save Tower
-                                </Button>
-                            </DialogFooter>
-                        </DialogContent>
-                    </Dialog>
-                </div>
-                
-                <input type="hidden" name="tower_id" :value="selectedTowerId" />
-                <InputError :message="errors.tower_id" />
-
-                <!-- Personal Details (Visible only after Tower selection) -->
-                <div v-if="selectedTowerId" class="grid gap-6 animate-in fade-in duration-500">
                     <div class="grid grid-cols-2 gap-4">
                         <div class="grid gap-2">
                             <Label for="floor">Floor</Label>
@@ -386,12 +400,14 @@ const towerImageUrl = computed(() => {
                         <InputError :message="errors.password_confirmation" />
                     </div>
 
+                    <!-- Tower ID hidden field -->
+                    <input type="hidden" name="tower_id" :value="tower.id" />
+
                     <Button
                         type="submit"
                         class="mt-2 w-full"
                         tabindex="8"
                         :disabled="processing"
-                        data-test="register-user-button"
                     >
                         <Spinner v-if="processing" />
                         Create account
@@ -404,10 +420,10 @@ const towerImageUrl = computed(() => {
                 <TextLink
                     :href="login()"
                     class="underline underline-offset-4"
-                    :tabindex="7"
+                    :tabindex="9"
                     >Log in</TextLink
                 >
             </div>
         </Form>
-    </AuthBase>
+    </AuthSimpleLayout>
 </template>

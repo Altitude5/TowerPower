@@ -27,11 +27,12 @@ class GeoController extends Controller
         $houseNumber = $request->query('house_number');
 
         if ($houseNumber) {
-            $tower = $street->towers()->where('house_number', $houseNumber)->first();
+            $tower = $street->towers()->where('house_number', trim(strtoupper($houseNumber)))->first();
 
             return response()->json([
                 'found' => (bool) $tower,
                 'tower' => $tower,
+                'street_name' => $street->name,
             ]);
         }
 
@@ -44,17 +45,40 @@ class GeoController extends Controller
     public function storeTower(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
+            'name' => 'nullable|string|max:120',
             'city_id' => 'required|exists:cities,id',
             'street_id' => 'required|exists:streets,id',
             'house_number' => 'required|string|max:255',
+            'image' => 'nullable|image|mimes:jpg,jpeg,gif,png|max:5120',
         ]);
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $tower = Tower::create($request->only(['name', 'city_id', 'street_id', 'house_number']));
+        $houseNumber = trim(strtoupper($request->house_number));
+
+        // Handle race condition
+        $tower = Tower::where('street_id', $request->street_id)
+            ->where('house_number', $houseNumber)
+            ->first();
+
+        if ($tower) {
+            return response()->json($tower, 200);
+        }
+
+        $data = [
+            'name' => $request->name ?? "Tower at {$houseNumber}",
+            'city_id' => $request->city_id,
+            'street_id' => $request->street_id,
+            'house_number' => $houseNumber,
+        ];
+
+        if ($request->hasFile('image')) {
+            $data['image_path'] = $request->file('image')->store('towers', 'public');
+        }
+
+        $tower = Tower::create($data);
 
         return response()->json($tower, 201);
     }
