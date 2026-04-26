@@ -312,6 +312,7 @@ const towerImageUrl = computed(() => {
                                 type="text"
                                 name="floor"
                                 placeholder="Floor"
+                                required
                                 :tabindex="2"
                             />
                             <InputError :message="errors.floor" />
@@ -323,6 +324,7 @@ const towerImageUrl = computed(() => {
                                 type="text"
                                 name="apartment_number"
                                 placeholder="Apt #"
+                                required
                                 :tabindex="3"
                             />
                             <InputError :message="errors.apartment_number" />

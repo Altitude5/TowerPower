@@ -16,8 +16,8 @@ trait ProfileValidationRules
     {
         return [
             'tower_id' => ['required', 'exists:towers,id'],
-            'floor' => ['nullable', 'string', 'max:255'],
-            'apartment_number' => ['nullable', 'string', 'max:255'],
+            'floor' => ['required', 'string', 'max:255'],
+            'apartment_number' => ['required', 'string', 'max:255'],
             'name' => $this->nameRules(),
             'email' => $this->emailRules($userId),
         ];

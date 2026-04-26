@@ -20,6 +20,8 @@ test('new users can register', function () {
     $street = Street::factory()->create(['city_id' => $city->id]);
     $tower = Tower::factory()->create(['street_id' => $street->id, 'house_number' => '42', 'city_id' => $city->id]);
 
+    $this->get(route('register'));
+
     $response = $this->post(route('register.store'), [
         'name' => 'Test User',
         'email' => 'test@example.com',
@@ -30,6 +32,27 @@ test('new users can register', function () {
         'apartment_number' => '101',
     ]);
 
+    $response->assertSessionHasNoErrors();
     $this->assertAuthenticated();
     $response->assertRedirect(route('home', absolute: false));
+});
+
+test('registration fails if floor or apartment number is missing', function () {
+    $city = City::factory()->create();
+    $street = Street::factory()->create(['city_id' => $city->id]);
+    $tower = Tower::factory()->create(['street_id' => $street->id, 'house_number' => '42', 'city_id' => $city->id]);
+
+    $this->get(route('register'));
+
+    $response = $this->from(route('register'))->post(route('register.store'), [
+        'name' => 'Test User',
+        'email' => 'test@example.com',
+        'password' => 'password',
+        'password_confirmation' => 'password',
+        'tower_id' => $tower->id,
+        // missing floor and apartment_number
+    ]);
+
+    $response->assertSessionHasErrors(['floor', 'apartment_number']);
+    $this->assertGuest();
 });
